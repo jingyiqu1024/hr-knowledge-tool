@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>HR 工作台 · 知识库工具 Demo</title>
+<link rel="stylesheet" href="workbench.css">
+<style>
+  .tool-card--knowledge { grid-column: span 7; min-height: 560px; }
+  .tool-card--manage    { grid-column: span 5; min-height: 560px; }
+
+  /* ── HRBP 卡片 ── */
+  .knowledge-layout { display: grid; grid-template-columns: 1fr 244px; gap: 12px; min-height: 468px; }
+  .knowledge-main { min-width: 0; display: flex; flex-direction: column; }
+  .graph-area { position: relative; flex: 1; min-height: 380px; border-radius: 10px;
+                background: rgba(255,255,255,.46); border: 1px solid rgba(255,255,255,.9); overflow: hidden; }
+  #graphCanvas { width: 100%; height: 100%; display: block; }
+  .graph-hint { position: absolute; left: 12px; bottom: 10px; color: var(--color-text-tertiary); font-size: 11px; }
+  .search-floating { position: absolute; inset: 0; background: rgba(250,252,255,.96); overflow: auto;
+                     display: none; padding: 10px; }
+  .search-floating.show { display: block; }
+  .search-item { padding: 9px 11px; border-radius: 8px; background: rgba(255,255,255,.8);
+                 border: 1px solid var(--color-border-default); margin-bottom: 7px; cursor: pointer; }
+  .search-item:hover { background: #fff; border-color: var(--color-brand-border); }
+  .search-item__title { font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .search-item__meta { font-size: 11px; color: var(--color-text-tertiary); margin-top: 3px; }
+
+  .tiny-tag { display: inline-flex; align-items: center; height: 18px; padding: 0 6px;
+              border-radius: 9px; font-size: 11px; white-space: nowrap; }
+  .tiny-tag--neutral { background: #f2f5f7; color: #5c6066; }
+  .tiny-tag--warn    { background: #fff1e5; color: #944b01; }
+  .tiny-tag--success { background: #e8faf3; color: #018550; }
+  .tiny-tag--brand   { background: var(--color-brand-soft); color: #1851b3; }
+
+  .knowledge-detail { border-left: 1px solid rgba(31,35,41,.08); padding-left: 12px;
+                      display: flex; flex-direction: column; min-width: 0; }
+  .knowledge-detail.empty { justify-content: center; align-items: center; text-align: center;
+                            color: var(--color-text-tertiary); font-size: 12px; line-height: 1.7; }
+  .detail-head { display: flex; align-items: flex-start; gap: 6px; }
+  .detail-title { flex: 1; font-size: 15px; font-weight: 600; line-height: 1.4; }
+  .detail-fav { border: none; background: transparent; color: #c4c7cc; cursor: pointer; font-size: 15px; padding: 0; }
+  .detail-fav.active { color: #fc860f; }
+  .detail-banner { border-radius: 6px; padding: 6px 9px; font-size: 11px; margin-top: 8px; }
+  .detail-banner.warn    { background: #fff1e5; color: #944b01; }
+  .detail-banner.success { background: #e8faf3; color: #018550; }
+  .detail-meta { font-size: 11px; color: var(--color-text-tertiary); margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px 8px; }
+  .detail-summary { font-size: 12px; color: var(--color-text-secondary); line-height: 1.65; margin-top: 10px; }
+  .detail-actions { margin-top: auto; padding-top: 12px; border-top: 1px solid rgba(31,35,41,.06); }
+
+  /* ── COE 卡片 ── */
+  .manage-shell { display: flex; flex-direction: column; min-height: 468px; }
+  .tab-panel { display: none; flex-direction: column; gap: 10px; }
+  .tab-panel.active { display: flex; }
+
+  .group-label { font-size: 11px; color: var(--color-text-tertiary); padding: 2px 2px 0; display: flex; align-items: center; gap: 6px; }
+  .group-label .dot { width: 6px; height: 6px; border-radius: 50%; }
+
+  .todo-card { border-radius: 10px; background: rgba(255,255,255,.66);
+               border: 1px solid rgba(31,35,41,.08); padding: 11px 12px; }
+  .todo-card.done { opacity: .55; }
+  .todo-head { display: flex; align-items: center; gap: 6px; margin-bottom: 7px; }
+  .todo-title { flex: 1; font-size: 13px; font-weight: 500; min-width: 0;
+                overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .todo-time { font-size: 11px; color: var(--color-text-tertiary); }
+  .todo-body { font-size: 12px; line-height: 1.6; }
+  .claim { display: flex; gap: 6px; padding: 3px 0; }
+  .claim-key { flex: none; width: 26px; font-size: 11px; }
+  .claim-key.new { color: #1851b3; }
+  .claim-key.old { color: #944b01; }
+  .claim-txt { color: var(--color-text-secondary); }
+  .todo-hint { font-size: 11px; color: var(--color-text-tertiary); margin-top: 4px; }
+
+  .diff-line { display: flex; gap: 6px; font-size: 12px; line-height: 1.6; padding: 1px 0; }
+  .diff-sign { flex: none; width: 10px; font-weight: 600; }
+  .diff-line.add    .diff-sign { color: #018550; }
+  .diff-line.remove .diff-sign { color: #b50707; }
+  .diff-line.remove .diff-txt  { color: #95999e; text-decoration: line-through; }
+  .diff-line.same   .diff-sign { color: #c4c7cc; }
+  .diff-line.same   .diff-txt  { color: var(--color-text-tertiary); }
+
+  .todo-actions { display: flex; gap: 8px; margin-top: 10px; }
+  .todo-actions .toft-button { height: 28px; padding: 0 12px; font-size: 13px; }
+  .resolve-note { font-size: 12px; color: var(--color-text-secondary); display: flex; align-items: center; gap: 8px; }
+  .link-btn { border: none; background: none; color: var(--color-text-link); font-size: 12px; cursor: pointer; padding: 0; }
+
+  .empty-tip { padding: 48px 0; text-align: center; color: var(--color-text-tertiary); font-size: 13px; }
+
+  .progress-card { border-radius: 10px; background: rgba(255,255,255,.66);
+                   border: 1px solid rgba(31,35,41,.08); padding: 11px 12px; }
+  .progress-head { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .progress-title { font-size: 13px; font-weight: 500; }
+  .progress-time { font-size: 11px; color: var(--color-text-tertiary); }
+  .role-line { display: flex; align-items: center; gap: 10px; padding: 6px 0;
+               border-top: 1px solid rgba(31,35,41,.06); }
+  .role-name { width: 52px; font-size: 12px; color: var(--color-text-secondary); flex: none; }
+  .role-steps { flex: 1; display: flex; align-items: center; gap: 3px; }
+  .step-dot { width: 7px; height: 7px; border-radius: 50%; background: #e1e3e6; flex: none; }
+  .step-dot.done { background: #06bf75; }
+  .step-dot.active { background: #0c63fa; box-shadow: 0 0 0 3px rgba(12,99,250,.12); }
+  .step-line { width: 12px; height: 1px; background: #e1e3e6; flex: none; }
+  .step-line.done { background: #06bf75; }
+  .role-badge { font-size: 11px; border-radius: 9px; padding: 2px 7px; white-space: nowrap; flex: none; }
+  .role-badge.done  { background: #e8faf3; color: #018550; }
+  .role-badge.active{ background: #edf4ff; color: #1851b3; }
+  .role-badge.warn  { background: #fff1e5; color: #944b01; }
+
+  /* 进度条 */
+  .prog-track { display: flex; align-items: flex-start; margin: 12px 0 10px; }
+  .prog-step { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: none; }
+  .prog-dot { width: 8px; height: 8px; border-radius: 50%; background: #e1e3e6; }
+  .prog-dot.done   { background: #06bf75; }
+  .prog-dot.active { background: #0c63fa; box-shadow: 0 0 0 3px rgba(12,99,250,.15); }
+  .prog-dot.fail   { background: #fc3232; box-shadow: 0 0 0 3px rgba(252,50,50,.15); }
+  .prog-line { flex: 1; height: 1px; background: #e1e3e6; margin-top: 4px; min-width: 16px; }
+  .prog-line.done { background: #06bf75; }
+  .prog-step-label { font-size: 11px; color: var(--color-text-quaternary); white-space: nowrap; }
+  .prog-step-label.hi { color: var(--color-text-secondary); }
+  .prog-step-label.fail-lbl { color: #b50707; }
+  .prog-badge { display: inline-flex; align-items: center; gap: 5px;
+                font-size: 12px; margin-top: 2px; padding: 5px 0 0; }
+  .fail-reason { font-size: 11px; color: #b50707; background: #fff5f5; border-radius: 7px;
+                 padding: 7px 10px; margin-top: 8px; line-height: 1.5; }
+  .role-badge.fail  { background: #fff5f5; color: #b50707; }
+  .fail-reason { font-size: 11px; color: #b50707; background: #fff5f5; border-radius: 6px;
+                 padding: 6px 9px; margin-top: 6px; display: flex; align-items: flex-start; gap: 6px; }
+
+  .space-card { border-radius: 10px; background: rgba(255,255,255,.66);
+               border: 1px solid rgba(31,35,41,.08); padding: 10px 12px;
+               display: flex; align-items: center; gap: 10px; }
+  .space-icon { width: 34px; height: 34px; border-radius: 10px; background: var(--color-brand-soft);
+               color: var(--color-brand-primary); display: grid; place-items: center; font-size: 15px; flex: none; }
+  .space-main { flex: 1; min-width: 0; }
+  .space-title { font-size: 13px; font-weight: 500; }
+  .space-meta { font-size: 11px; color: var(--color-text-tertiary); margin-top: 2px; }
+  .list-head { display: flex; justify-content: space-between; align-items: center; padding: 4px 2px 0; }
+  .list-head-label { font-size: 13px; font-weight: 600; }
+  .page-row { border-radius: 10px; background: rgba(255,255,255,.66);
+              border: 1px solid rgba(31,35,41,.08); padding: 10px 12px;
+              display: flex; align-items: center; gap: 10px; }
+  .page-title-wrap { flex: 1; min-width: 0; }
+  .page-title { font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+  .page-sub { font-size: 11px; color: var(--color-text-tertiary); margin-top: 2px; }
+  .page-date { font-size: 11px; color: var(--color-text-tertiary); flex: none; }
+  .page-actions { display: flex; gap: 6px; flex: none; }
+  .page-actions .toft-button { height: 26px; padding: 0 10px; font-size: 12px; }
+</style>
+</head>
+<body>
+<script src="data.js"></script>
+<div class="workbench-shell">
+  <div class="workbench-topbar">
+    <div class="workbench-brand">
+      <div style="width:28px;height:28px;border-radius:8px;background:#fff;display:grid;place-items:center;box-shadow:0 2px 8px rgba(31,35,41,0.12)">✨</div>
+      <strong>HR工作台</strong>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center">
+      <button class="toft-button toft-button--ghost">模板</button>
+      <button class="toft-button toft-button--ghost">我的</button>
+    </div>
+  </div>
+
+  <div class="workbench-main">
+    <div class="workbench-head">
+      <h1>景怡，下午好</h1>
+    </div>
+
+    <div class="workbench-canvas">
+      <!-- ══ HRBP：知识库 ══ -->
+      <section class="tool-card tool-card--knowledge">
+        <div class="tool-card__header">
+          <div class="tool-card__title">知识库</div>
+          <button class="toft-button toft-button--ghost" onclick="alert('打开知识库全屏')">全屏查看</button>
+        </div>
+        <div class="tool-card__body">
+          <div class="knowledge-layout">
+            <div class="knowledge-main">
+              <div class="tool-search">
+                <span style="color:var(--color-text-tertiary);font-size:13px">⌕</span>
+                <input id="searchInput" placeholder="搜索知识、政策、流程…">
+              </div>
+              <div class="tool-role-pills" id="rolePills"></div>
+              <div class="graph-area">
+                <canvas id="graphCanvas"></canvas>
+                <div class="search-floating" id="searchFloating"></div>
+                <div class="graph-hint">点击叶子节点看详情 · 滚轮缩放 · 拖拽平移</div>
+              </div>
+            </div>
+            <aside class="knowledge-detail empty" id="detailPane"></aside>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ COE：知识管理 ══ -->
+      <section class="tool-card tool-card--manage">
+        <div class="tool-card__header">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="tool-card__title">知识管理</div>
+            <span class="toft-badge toft-badge--danger" id="pendingBadgeTop">0</span>
+          </div>
+          <button class="toft-button toft-button--ghost" onclick="alert('跳转到知识维护后台上传页')">上传文档</button>
+        </div>
+        <div class="tool-card__body">
+          <div class="manage-shell">
+            <div class="toft-tabs">
+              <div class="toft-tab active" data-tab="todo" onclick="switchTab('todo', this)">待处理</div>
+              <div class="toft-tab" data-tab="progress" onclick="switchTab('progress', this)">进度</div>
+              <div class="toft-tab" data-tab="pages" onclick="switchTab('pages', this)">知识</div>
+            </div>
+            <div class="tab-panel active" id="panel-todo"></div>
+            <div class="tab-panel" id="panel-progress"></div>
+            <div class="tab-panel" id="panel-pages"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═════════ 状态 ═════════ */
+const state = {
+  role: 'hrbp',
+  favorites: new Set(JSON.parse(localStorage.getItem('hr-kc-favs') || '[]')),
+  selectedPage: null,
+  zoom: 1,
+  offset: { x: 0, y: 0 },
+  nodes: [], edges: [],
+  hovered: null, dragging: false,
+  resolved: {},          // id -> 'new' | 'old' | 'pass' | 'redo'
+};
+
+const ROLE_LABEL = { hrbp:'HRBP', manager:'管理者', all:'全员', recruiter:'招聘' };
+
+/* ═════════ HRBP 卡片 ═════════ */
+const canvas = document.getElementById('graphCanvas');
+const ctx = canvas.getContext('2d');
+
+function renderRolePills() {
+  document.getElementById('rolePills').innerHTML = DATA.roles.map(r =>
+    `<div class="tool-role-pill ${state.role === r.key ? 'active' : ''}" onclick="selectRole('${r.key}')">${r.label}</div>`
+  ).join('');
+}
+
+function selectRole(role) {
+  state.role = role;
+  state.selectedPage = null;
+  state.zoom = 1; state.offset = { x: 0, y: 0 };
+  renderRolePills(); renderDetail(null); resizeCanvas();
+}
+
+function resizeCanvas() {
+  const rect = document.getElementById('graphCanvas').parentElement.getBoundingClientRect();
+  canvas.width = rect.width; canvas.height = rect.height;
+  buildGraph(); drawGraph();
+}
+
+function buildGraph() {
+  const W = canvas.width, H = canvas.height, cx = W / 2, cy = H / 2;
+  const domains = (DATA.graph[state.role] || { domains: [] }).domains;
+  const nodes = [{ id: 'center', kind: 'center', x: cx, y: cy, r: 26, label: 'HR域' }];
+  const edges = [];
+  const dAngle = (Math.PI * 2) / Math.max(domains.length, 1);
+
+  domains.forEach((dom, i) => {
+    const a = -Math.PI / 2 + i * dAngle;
+    const dx = cx + 122 * Math.cos(a), dy = cy + 122 * Math.sin(a);
+    nodes.push({ id: dom.key, kind: 'domain', x: dx, y: dy, r: 20, label: dom.label });
+    edges.push({ from: 'center', to: dom.key });
+
+    const subs = dom.children || [];
+    const sSpread = subs.length > 1 ? Math.PI * 0.7 : 0;
+    subs.forEach((sub, si) => {
+      const sa = subs.length === 1 ? a : (a - sSpread / 2 + sSpread * (si / (subs.length - 1)));
+      const sx = dx + 88 * Math.cos(sa), sy = dy + 88 * Math.sin(sa);
+      nodes.push({ id: sub.key, kind: 'sub', x: sx, y: sy, r: 15, label: sub.label });
+      edges.push({ from: dom.key, to: sub.key });
+
+      const pages = sub.pages || [];
+      const pSpread = pages.length > 1 ? Math.PI * 0.56 : 0;
+      pages.forEach((page, pi) => {
+        const pa = pages.length === 1 ? sa : (sa - pSpread / 2 + pSpread * (pi / (pages.length - 1)));
+        nodes.push({ id: page.id, kind: 'page',
+                     x: sx + 66 * Math.cos(pa), y: sy + 66 * Math.sin(pa),
+                     r: 11, label: page.title, page });
+        edges.push({ from: sub.key, to: page.id });
+      });
+    });
+  });
+
+  state.nodes = nodes; state.edges = edges;
+}
+
+function drawGraph() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.save();
+  ctx.translate(state.offset.x, state.offset.y);
+  ctx.scale(state.zoom, state.zoom);
+
+  const map = Object.fromEntries(state.nodes.map(n => [n.id, n]));
+  ctx.lineWidth = 1;
+  state.edges.forEach(e => {
+    const a = map[e.from], b = map[e.to];
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+    ctx.strokeStyle = 'rgba(31,35,41,.12)'; ctx.stroke();
+  });
+
+  const FONT = "-apple-system,'PingFang SC',sans-serif";
+  state.nodes.forEach(n => {
+    let fill = '#1f2329';
+    if (n.kind === 'domain') fill = '#0c63fa';
+    if (n.kind === 'sub')    fill = '#06bf75';
+    if (n.kind === 'page')   fill = n.page.hasConflict ? '#fc860f' : n.page.isNew ? '#018550' : '#7938fc';
+
+    const active = (state.selectedPage && state.selectedPage.id === n.id) || state.hovered === n.id;
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, n.r + (active ? 2 : 0), 0, Math.PI * 2);
+    ctx.fillStyle = fill; ctx.fill();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = active ? 2.5 : 1.2; ctx.stroke();
+
+    ctx.textAlign = 'center';
+    if (n.kind === 'page') {
+      ctx.fillStyle = '#5c6066';
+      ctx.textBaseline = 'top';
+      ctx.font = `10px ${FONT}`;
+      ctx.fillText(n.label.length > 8 ? n.label.slice(0, 8) + '…' : n.label, n.x, n.y + n.r + 6);
+    } else {
+      ctx.fillStyle = '#fff';
+      ctx.textBaseline = 'middle';
+      ctx.font = `10px ${FONT}`;
+      ctx.fillText(n.label, n.x, n.y);
+    }
+  });
+  ctx.restore();
+}
+
+function hitNode(clientX, clientY) {
+  const rect = canvas.getBoundingClientRect();
+  const x = (clientX - rect.left - state.offset.x) / state.zoom;
+  const y = (clientY - rect.top  - state.offset.y) / state.zoom;
+  for (let i = state.nodes.length - 1; i >= 0; i--) {
+    const n = state.nodes[i], dx = x - n.x, dy = y - n.y;
+    if (dx * dx + dy * dy <= (n.r + 4) * (n.r + 4)) return n;
+  }
+  return null;
+}
+
+canvas.addEventListener('mousemove', e => {
+  if (state.dragging) {
+    state.offset.x += e.movementX; state.offset.y += e.movementY; drawGraph(); return;
+  }
+  const n = hitNode(e.clientX, e.clientY);
+  state.hovered = n ? n.id : null;
+  canvas.style.cursor = n ? 'pointer' : 'grab';
+  drawGraph();
+});
+canvas.addEventListener('mousedown', () => { state.dragging = true; canvas.style.cursor = 'grabbing'; });
+window.addEventListener('mouseup', () => { state.dragging = false; canvas.style.cursor = 'grab'; });
+canvas.addEventListener('click', e => {
+  const n = hitNode(e.clientX, e.clientY);
+  if (n && n.kind === 'page') { state.selectedPage = n.page; renderDetail(n.page); drawGraph(); }
+});
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  state.zoom = Math.min(3, Math.max(.45, state.zoom * (e.deltaY < 0 ? 1.08 : .92)));
+  drawGraph();
+}, { passive: false });
+
+function renderDetail(page) {
+  const el = document.getElementById('detailPane');
+  if (!page) {
+    el.className = 'knowledge-detail empty';
+    el.innerHTML = '点击右侧叶子节点<br>查看知识详情';
+    return;
+  }
+  el.className = 'knowledge-detail';
+  el.innerHTML = `
+    <div class="detail-head">
+      <div class="detail-title">${page.title}</div>
+      <button class="detail-fav ${state.favorites.has(page.id) ? 'active' : ''}"
+              onclick="toggleFav('${page.id}')" title="收藏">★</button>
+    </div>
+    ${page.hasConflict ? '<div class="detail-banner warn">存在待裁决冲突，COE 处理中</div>' : ''}
+    ${page.isNew ? '<div class="detail-banner success">近期已更新至新版</div>' : ''}
+    <div class="detail-summary">${page.summary}</div>
+    <div class="detail-meta">
+      <span class="tiny-tag tiny-tag--neutral">${page.tag}</span>
+      <span>${ROLE_LABEL[state.role]}可见</span>
+      <span>更新于 ${page.updatedAt}</span>
+    </div>
+    <div class="detail-meta"><span>来源：<span class="detail-link" style="color:var(--color-text-link);cursor:pointer" onclick="alert('打开原文：${page.source}')">${page.source} ↗</span></span></div>
+    <div class="detail-actions">
+      <button class="toft-button toft-button--primary" style="width:100%" onclick="alert('跳转到知识库详情页')">打开详情页</button>
+    </div>`;
+}
+
+function toggleFav(id) {
+  state.favorites.has(id) ? state.favorites.delete(id) : state.favorites.add(id);
+  localStorage.setItem('hr-kc-favs', JSON.stringify([...state.favorites]));
+  if (state.selectedPage && state.selectedPage.id === id) renderDetail(state.selectedPage);
+}
+
+function allPages() {
+  const out = [];
+  (DATA.graph[state.role] || { domains: [] }).domains.forEach(d =>
+    d.children.forEach(s => s.pages.forEach(p => out.push({ ...p, domain: d.label, sub: s.label }))));
+  return out;
+}
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  const q = e.target.value.trim().toLowerCase();
+  const box = document.getElementById('searchFloating');
+  if (!q) { box.classList.remove('show'); box.innerHTML = ''; return; }
+  const hits = allPages().filter(p =>
+    p.title.toLowerCase().includes(q) || p.summary.toLowerCase().includes(q) || p.tag.toLowerCase().includes(q));
+  box.classList.add('show');
+  box.innerHTML = hits.length ? hits.map(p => `
+    <div class="search-item" onclick="openSearchResult('${p.id}')">
+      <div class="search-item__title">${p.title}
+        <span class="tiny-tag tiny-tag--neutral">${p.tag}</span>
+        ${p.hasConflict ? '<span class="tiny-tag tiny-tag--warn">有冲突</span>' : ''}
+        ${p.isNew ? '<span class="tiny-tag tiny-tag--success">已更新</span>' : ''}
+      </div>
+      <div class="search-item__meta">${p.domain} · ${p.sub} · 更新于 ${p.updatedAt}</div>
+    </div>`).join('')
+    : '<div class="empty-tip">没有找到相关知识</div>';
+});
+
+function openSearchResult(id) {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchFloating').classList.remove('show');
+  const page = allPages().find(p => p.id === id);
+  state.selectedPage = page; renderDetail(page); drawGraph();
+}
+
+/* ═════════ COE 卡片 ═════════ */
+
+const KIND_META = {
+  conflict: { label: '冲突 · 需裁决', color: '#fc3232', desc: '两份文档说法不一致，不裁决就无法入库' },
+  proposal: { label: '变更 · 待确认', color: '#fc860f', desc: '原文内容有更新，确认后应用到知识页' },
+  quality:  { label: '质量 · 待复核', color: '#7938fc', desc: 'AI 加工信心不足，人工过一眼再放行' },
+};
+
+function pendingList() { return DATA.pendingItems.filter(i => !state.resolved[i.id]); }
+
+function updateBadges() {
+  const n = pendingList().length;
+  document.getElementById('pendingBadgeTop').textContent = n;
+}
+
+function switchTab(tab, el) {
+  document.querySelectorAll('.toft-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+
+function renderTodoPanel() {
+  const el = document.getElementById('panel-todo');
+  const groups = ['conflict', 'proposal', 'quality'];
+  const html = groups.map(kind => {
+    const items = DATA.pendingItems.filter(i => i.kind === kind);
+    if (!items.length) return '';
+    const meta = KIND_META[kind];
+    return `
+      <div class="group-label">
+        <span class="dot" style="background:${meta.color}"></span>
+        ${meta.label} · ${items.length}
+        <span style="color:var(--color-text-quaternary)">${meta.desc}</span>
+      </div>
+      ${items.map(item => renderTodoCard(item)).join('')}`;
+  }).join('');
+
+  el.innerHTML = html || '<div class="empty-tip">待处理已清空，暂无需要你介入的事项 ✅</div>';
+}
+
+function renderTodoCard(item) {
+  const done = state.resolved[item.id];
+  const meta = KIND_META[item.kind];
+
+  if (done) {
+    const text = {
+      new:  '已用新的这份',
+      old:  '已保留原来的',
+      pass: '已通过，知识页已上线',
+      redo: '已退回重新加工',
+    }[done];
+    return `
+      <div class="todo-card done">
+        <div class="todo-head">
+          <span class="tiny-tag" style="background:${meta.color}1a;color:${meta.color}">${meta.label}</span>
+          <div class="todo-title">${item.pageTitle}</div>
+        </div>
+        <div class="resolve-note">✓ ${text}
+          <button class="link-btn" onclick="undo('${item.id}')">撤销</button>
+        </div>
+      </div>`;
+  }
+
+  let body = '';
+  if (item.kind === 'conflict') {
+    body = `
+      <div class="claim"><span class="claim-key new">新的</span><span class="claim-txt">${item.newText}</span></div>
+      <div class="claim"><span class="claim-key old">原来的</span><span class="claim-txt">${item.oldText}</span></div>
+      <div class="todo-hint">${item.hint}</div>`;
+  } else if (item.kind === 'proposal') {
+    body = item.diff.map(d => `
+      <div class="diff-line ${d.type}">
+        <span class="diff-sign">${d.type === 'add' ? '+' : d.type === 'remove' ? '−' : ''}</span>
+        <span class="diff-txt">${d.text}</span>
+      </div>`).join('');
+  } else {
+    body = `
+      <div style="color:var(--color-text-secondary)">${item.reason}</div>
+      <div class="todo-hint">AI 信心 ${Math.round(item.confidence * 100)}% · 生成 ${item.pagesCount} 个页面</div>`;
+  }
+
+  const actions = item.kind === 'quality'
+    ? `<button class="toft-button toft-button--primary" onclick="decide('${item.id}','pass')">通过</button>
+       <button class="toft-button toft-button--ghost" onclick="decide('${item.id}','redo')">重新加工</button>`
+    : `<button class="toft-button toft-button--primary" onclick="decide('${item.id}','new')">${item.kind === 'conflict' ? '用新的' : '用新版'}</button>
+       <button class="toft-button toft-button--ghost" onclick="decide('${item.id}','old')">${item.kind === 'conflict' ? '保留原来的' : '暂不更新'}</button>`;
+
+  return `
+    <div class="todo-card">
+      <div class="todo-head">
+        <span class="tiny-tag" style="background:${meta.color}1a;color:${meta.color}">${meta.label}</span>
+        <div class="todo-title">${item.pageTitle}</div>
+        <span class="todo-time">${item.uploadedAt}</span>
+      </div>
+      <div class="todo-body">${body}</div>
+      <div class="todo-actions">${actions}</div>
+    </div>`;
+}
+
+function decide(id, choice) {
+  state.resolved[id] = choice;
+  updateBadges(); renderTodoPanel();
+}
+
+function undo(id) {
+  delete state.resolved[id];
+  updateBadges(); renderTodoPanel();
+}
+
+function renderProgressPanel() {
+  const STEPS    = ['已提交', '生成知识页', '冲突检查', '完成'];
+  const STEP_IDX = { submitted: 0, generating: 1, checking: 2, done: 3 };
+
+  document.getElementById('panel-progress').innerHTML = DATA.tasks.map(t => {
+    const failed = t.status === 'failed';
+    const done   = t.status === 'done';
+    const cur    = failed ? (STEP_IDX[t.failedAt] ?? 1) : (STEP_IDX[t.status] ?? 0);
+
+    // 进度条
+    const track = STEPS.map((label, i) => {
+      const isDone   = done ? i <= cur : (!failed && i < cur);
+      const isActive = !failed && !done && i === cur;
+      const isFail   = failed && i === cur;
+      return (
+        '<div class="prog-step">' +
+          '<div class="prog-dot' + (isDone ? ' done' : isActive ? ' active' : isFail ? ' fail' : '') + '"></div>' +
+          '<div class="prog-step-label' + (isDone || isActive ? ' hi' : isFail ? ' hi fail-lbl' : '') + '">' + label + '</div>' +
+        '</div>' +
+        (i < STEPS.length - 1 ? '<div class="prog-line' + (isDone ? ' done' : '') + '"></div>' : '')
+      );
+    }).join('');
+
+    // 完成后展示结果摘要
+    let result = '';
+    if (done) {
+      if (t.conflictCount) {
+        result = '<div class="prog-badge"><span class="role-badge warn">' + t.conflictCount + ' 项待裁决</span>' +
+                 '<span class="role-badge done">' + t.pageCount + ' 页已生效</span></div>';
+      } else {
+        result = '<div class="prog-badge"><span class="role-badge done">' + t.pageCount + ' 页已生效</span></div>';
+      }
+    }
+
+    // 失败原因
+    const failBlock = failed && t.failReason
+      ? '<div class="fail-reason">⚠ ' + t.failReason + '</div>' : '';
+
+    const titleSuffix = failed
+      ? ' <span class="tiny-tag" style="background:#fff5f5;color:#b50707;margin-left:4px">失败</span>' : '';
+
+    return '<div class="progress-card">' +
+      '<div class="progress-head">' +
+        '<div class="progress-title">' + t.sourceTitle + titleSuffix + '</div>' +
+        '<div class="progress-time">' + t.uploadedAt + '</div>' +
+      '</div>' +
+      '<div class="prog-track">' + track + '</div>' +
+      result + failBlock +
+    '</div>';
+  }).join('');
+}
+
+function renderPagesPanel() {
+  document.getElementById('panel-pages').innerHTML =
+    DATA.coeSpaces.map(s => `
+      <div class="space-card">
+        <div class="space-icon">📂</div>
+        <div class="space-main">
+          <div class="space-title">${s.domain} · ${s.label}</div>
+          <div class="space-meta">${s.pagesCount} 个知识页 · 空间 ${s.key}</div>
+        </div>
+        <button class="toft-button toft-button--ghost" onclick="alert('打开空间详情：${s.key}')">查看</button>
+      </div>`).join('') +
+    `<div class="list-head">
+      <div class="list-head-label">全部知识页</div>
+      <button class="toft-button toft-button--ghost" onclick="alert('在后台查看完整列表')">在后台查看</button>
+    </div>` +
+    DATA.managedPages.map(p => `
+      <div class="page-row">
+        <div class="page-title-wrap">
+          <div class="page-title">${p.title}
+            ${p.status === 'live'
+              ? '<span class="tiny-tag tiny-tag--success">已生效</span>'
+              : '<span class="tiny-tag tiny-tag--warn">待审核</span>'}
+          </div>
+          <div class="page-sub">${p.subdomain} · 来源 ${p.source}</div>
+        </div>
+        <div class="page-date">${p.updatedAt}</div>
+        <div class="page-actions">
+          <button class="toft-button toft-button--ghost" onclick="alert('立即检查：${p.title}')">立即检查</button>
+          <button class="toft-button toft-button--ghost" onclick="alert('查看：${p.title}')">查看</button>
+        </div>
+      </div>`).join('');
+}
+
+/* ═════════ init ═════════ */
+renderRolePills();
+resizeCanvas();
+renderDetail(null);
+renderTodoPanel();
+renderProgressPanel();
+renderPagesPanel();
+updateBadges();
+window.addEventListener('resize', resizeCanvas);
+</script>
+</body>
+</html>
