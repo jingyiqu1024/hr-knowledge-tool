@@ -190,9 +190,10 @@
             </div>
             <div class="graph-area" id="graphAreaWrap">
               <canvas id="graphCanvas"></canvas>
+              <svg id="favOverlay" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible"></svg>
               <div class="search-floating" id="searchFloating"></div>
               <div class="fav-panel" id="favPanel"></div>
-              <div class="graph-hint" id="graphHint">点击节点跳转 · 点击节点旁 ★ 收藏 · 滚轮缩放</div>
+              <div class="graph-hint" id="graphHint">点击节点跳转 · 点击 ★ 收藏 · 滚轮缩放</div>
             </div>
           </div>
         </div>
@@ -238,7 +239,6 @@ const S = {
   pan: { x: 0, y: 0 },
   nodes: [], edges: [],
   hovered: null,
-  hoveredFavBtn: null,   // page id whose fav-star is being hovered
   dragging: false,
   showFavs: false,
   resolved: {},
@@ -471,39 +471,38 @@ function drawGraph() {
       ctx.fillText(txt, n.x, ty);
     }
 
-    /* hover 时的收藏星标 */
-    if (hov) {
-      const sx = n.x + n.r + 7, sy = n.y - n.r - 7;
-      const on = S.hoveredFavBtn === n.id;
-      const isFav = S.favs.has(n.id);
-      ctx.beginPath(); ctx.arc(sx, sy, 9, 0, Math.PI * 2);
-      ctx.fillStyle = (on || isFav) ? '#e9a33a' : '#fff';
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(31,35,41,.14)'; ctx.lineWidth = 1; ctx.stroke();
-      ctx.fillStyle = (on || isFav) ? '#fff' : '#b8bec6';
-      ctx.font = `9px ${FONT}`;
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText('★', sx, sy);
-    }
   });
+  ctx.restore();
+  updateFavOverlay();
+}
+
+/* ── SVG 收藏 overlay：绕开 canvas 命中问题，直接用 DOM 事件 ── */
+function updateFavOverlay() {
+  const svg = document.getElementById('favOverlay');
+  if (!svg) return;
+  svg.innerHTML = S.nodes.filter(n => n.kind === 'page').map(n => {
+    const bx = n.x * S.zoom + S.pan.x;
+    const by = n.y * S.zoom + S.pan.y;
+    const ox = (n.r + 9) * S.zoom;
+    const oy = (n.r + 9) * S.zoom;
+    const cx = bx + ox, cy = by - oy;
+    const on = S.favs.has(n.id);
+    return `<g data-fav-id="${n.id}" style="cursor:pointer">
+      <circle cx="${cx}" cy="${cy}" r="10" fill="${on?'#e9a33a':'rgba(255,255,255,0.9)'}" stroke="${on?'#e9a33a':'rgba(31,35,41,0.15)'}" stroke-width="1"/>
+      <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" font-size="10" font-family="-apple-system,'PingFang SC',sans-serif" fill="${on?'#fff':'#b0b6be'}" style="user-select:none;pointer-events:none">★</text>
+    </g>`;
+  }).join('');
 }
 
 /* ── 命中检测 ── */
-function favBtnPos(n) { return { x: n.x + n.r + 8, y: n.y - n.r - 8, r: 9 }; }
+
 
 function hitTest(clientX, clientY) {
   const rect = canvas.getBoundingClientRect();
   const mx = (clientX - rect.left - S.pan.x) / S.zoom;
   const my = (clientY - rect.top  - S.pan.y) / S.zoom;
 
-  // 先扫描所有 page 节点的星标区域（不依赖 S.hovered）
-  for (let i = S.nodes.length - 1; i >= 0; i--) {
-    const n = S.nodes[i];
-    if (n.kind !== 'page') continue;
-    const fb = favBtnPos(n);
-    const dx = mx - fb.x, dy = my - fb.y;
-    if (dx * dx + dy * dy <= (fb.r + 6) * (fb.r + 6)) return { node: n, fav: true };
-  }
+  // 收藏星标由 SVG overlay 处理，canvas hitTest 不再检测 fav 区
   for (let i = S.nodes.length - 1; i >= 0; i--) {
     const n = S.nodes[i], dx = mx - n.x, dy = my - n.y;
     // 对 page 节点用更大的感应半径（覆盖右上角星标区域）
@@ -516,11 +515,10 @@ function hitTest(clientX, clientY) {
 canvas.addEventListener('mousemove', e => {
   if (S.dragging) { S.pan.x += e.movementX; S.pan.y += e.movementY; drawGraph(); return; }
   const hit = hitTest(e.clientX, e.clientY);
-  const ph = S.hovered, pf = S.hoveredFavBtn;
+  const ph = S.hovered;
   S.hovered       = hit ? hit.node.id : null;
-  S.hoveredFavBtn = (hit && hit.fav) ? hit.node.id : null;
   canvas.style.cursor = hit ? 'pointer' : 'grab';
-  if (S.hovered !== ph || S.hoveredFavBtn !== pf) drawGraph();
+  if (S.hovered !== ph) drawGraph();
 });
 
 canvas.addEventListener('mousedown', e => {
@@ -532,7 +530,6 @@ window.addEventListener('mouseup', () => { S.dragging = false; });
 canvas.addEventListener('click', e => {
   const hit = hitTest(e.clientX, e.clientY);
   if (!hit) return;
-  if (hit.fav) { toggleFav(hit.node.id); return; }
   if (hit.node.kind === 'page') window.open(KB_BASE + '/' + hit.node.id, '_blank');
 });
 
@@ -758,32 +755,17 @@ function renderPagesPanel() {
           <div class="space-meta">${s.pagesCount} 个知识页 · 空间 ${s.key}</div>
         </div>
         <button class="toft-button toft-button--ghost" onclick="alert('查看空间：${s.key}')">查看</button>
-      </div>`).join('') +
-    `<div class="list-head">
-      <div class="list-head-label">全部知识页</div>
-      <button class="toft-button toft-button--ghost" onclick="alert('在后台查看')">在后台查看</button>
-    </div>` +
-    DATA.managedPages.map(p=>`
-      <div class="page-row">
-        <div class="page-title-wrap">
-          <div class="page-title">${p.title}
-            ${p.status==='live'
-              ?'<span class="tiny-tag tiny-tag--success">已生效</span>'
-              :'<span class="tiny-tag tiny-tag--warn">待审核</span>'}
-          </div>
-          <div class="page-sub">${p.subdomain} · 来源 ${p.source}</div>
-        </div>
-        <div class="page-date">${p.updatedAt}</div>
-        <div class="page-actions">
-          <button class="toft-button toft-button--ghost" onclick="alert('立即检查：${p.title}')">立即检查</button>
-          <button class="toft-button toft-button--ghost" onclick="alert('查看：${p.title}')">查看</button>
-        </div>
       </div>`).join('');
 }
 
 /* ════════════════════════════════
    Init
 ════════════════════════════════ */
+// SVG overlay 事件委托（绑一次，不随 innerHTML 刷新而失效）
+document.getElementById('favOverlay').addEventListener('click', e => {
+  const g = e.target.closest('[data-fav-id]');
+  if (g) toggleFav(g.dataset.favId);
+});
 renderRolePills();
 resizeCanvas();
 renderTodoPanel();
