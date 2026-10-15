@@ -5,168 +5,151 @@
 <title>HR 工作台 · 知识库工具 Demo</title>
 <link rel="stylesheet" href="workbench.css">
 <style>
-  .tool-card--knowledge { grid-column: span 7; min-height: 560px; }
-  .tool-card--manage    { grid-column: span 5; min-height: 560px; }
+  .tool-card--knowledge { grid-column: span 7; min-height: 580px; }
+  .tool-card--manage    { grid-column: span 5; min-height: 580px; }
 
-  .knowledge-layout-full { display: flex; flex-direction: column; min-height: 468px; }
-  .k-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
-  .fav-toggle-btn { font-size: 12px; height: 28px; padding: 0 10px; color: var(--color-text-secondary); }
-  .fav-toggle-btn.active { color: #fc860f; border-color: #fc860f; background: #fff8f0; }
-
-  /* ── HRBP 卡片 ── */
-  /* .knowledge-layout legacy */
-  .knowledge-main { min-width: 0; display: flex; flex-direction: column; }
-  .graph-area { position: relative; flex: 1; min-height: 390px; border-radius: 10px;
-                background: rgba(255,255,255,.46); border: 1px solid rgba(255,255,255,.9); overflow: hidden; }
+  /* ── 消费卡片 ── */
+  .k-full { display: flex; flex-direction: column; min-height: 490px; }
+  .k-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .graph-area { position: relative; flex: 1; min-height: 400px; border-radius: 10px;
+                background: rgba(255,255,255,.5); border: 1px solid rgba(255,255,255,.9); overflow: hidden; }
   #graphCanvas { width: 100%; height: 100%; display: block; }
-  .graph-hint { position: absolute; left: 12px; bottom: 10px; color: var(--color-text-tertiary); font-size: 11px; }
-  .search-floating { position: absolute; inset: 0; background: rgba(250,252,255,.96); overflow: auto;
-                     display: none; padding: 10px; }
+  .graph-hint { position: absolute; left: 12px; bottom: 10px;
+                color: var(--color-text-quaternary); font-size: 11px; pointer-events: none; }
+
+  .search-floating { position: absolute; inset: 0; background: rgba(250,252,255,.97);
+                     overflow: auto; display: none; padding: 10px; }
   .search-floating.show { display: block; }
-  .search-item { padding: 9px 11px; border-radius: 8px; background: rgba(255,255,255,.8);
+  .search-item { padding: 9px 11px; border-radius: 8px; background: #fff;
                  border: 1px solid var(--color-border-default); margin-bottom: 7px; cursor: pointer; }
-  .search-item:hover { background: #fff; border-color: var(--color-brand-border); }
+  .search-item:hover { border-color: var(--color-brand-border); }
   .search-item__title { font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .search-item__meta { font-size: 11px; color: var(--color-text-tertiary); margin-top: 3px; }
+
+  .fav-panel { position: absolute; inset: 0; background: rgba(250,252,255,.97);
+               overflow: auto; display: none; flex-direction: column; padding: 12px; gap: 8px; }
+  .fav-panel.show { display: flex; }
+  .fav-item { display: flex; align-items: center; gap: 10px; padding: 9px 11px; border-radius: 8px;
+              background: #fff; border: 1px solid var(--color-border-default); cursor: pointer; }
+  .fav-item:hover { border-color: var(--color-brand-border); background: var(--color-brand-soft); }
+  .fav-item-info { flex: 1; min-width: 0; }
+  .fav-item-title { font-size: 13px; font-weight: 500; }
+  .fav-item-meta  { font-size: 11px; color: var(--color-text-tertiary); margin-top: 2px; }
+  .fav-unfav { border: none; background: transparent; color: #ccc; cursor: pointer;
+               font-size: 16px; padding: 0; line-height: 1; }
+  .fav-unfav:hover { color: #fc860f; }
+  .fav-empty { flex: 1; display: flex; flex-direction: column; align-items: center;
+               justify-content: center; color: var(--color-text-tertiary); font-size: 13px;
+               gap: 6px; text-align: center; }
+
+  .fav-btn { height: 28px; padding: 0 10px; font-size: 12px; border-radius: 6px;
+             border: 1px solid var(--color-border-default); background: rgba(255,255,255,.7);
+             color: var(--color-text-secondary); cursor: pointer; display: flex; align-items: center; gap: 4px; }
+  .fav-btn.active { color: #fc860f; border-color: #fcd09b; background: #fff8f0; }
 
   .tiny-tag { display: inline-flex; align-items: center; height: 18px; padding: 0 6px;
               border-radius: 9px; font-size: 11px; white-space: nowrap; }
   .tiny-tag--neutral { background: #f2f5f7; color: #5c6066; }
   .tiny-tag--warn    { background: #fff1e5; color: #944b01; }
   .tiny-tag--success { background: #e8faf3; color: #018550; }
-  .tiny-tag--brand   { background: var(--color-brand-soft); color: #1851b3; }
 
-  .knowledge-detail { border-left: 1px solid rgba(31,35,41,.08); padding-left: 12px;
-                      display: flex; flex-direction: column; min-width: 0; }
-  .knowledge-detail.empty { justify-content: center; align-items: center; text-align: center;
-                            color: var(--color-text-tertiary); font-size: 12px; line-height: 1.7; }
-  .detail-head { display: flex; align-items: flex-start; gap: 6px; }
-  .detail-title { flex: 1; font-size: 15px; font-weight: 600; line-height: 1.4; }
-  .detail-fav { border: none; background: transparent; color: #c4c7cc; cursor: pointer; font-size: 15px; padding: 0; }
-  .detail-fav.active { color: #fc860f; }
-  .detail-banner { border-radius: 6px; padding: 6px 9px; font-size: 11px; margin-top: 8px; }
-  .detail-banner.warn    { background: #fff1e5; color: #944b01; }
-  .detail-banner.success { background: #e8faf3; color: #018550; }
-  .detail-meta { font-size: 11px; color: var(--color-text-tertiary); margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px 8px; }
-  .detail-summary { font-size: 12px; color: var(--color-text-secondary); line-height: 1.65; margin-top: 10px; }
-  .detail-actions { margin-top: auto; padding-top: 12px; border-top: 1px solid rgba(31,35,41,.06); }
-
-  /* ── COE 卡片 ── */
-  .manage-shell { display: flex; flex-direction: column; min-height: 468px; }
+  /* ── 生产卡片 ── */
+  .manage-shell { display: flex; flex-direction: column; min-height: 490px; }
   .tab-panel { display: none; flex-direction: column; gap: 10px; }
   .tab-panel.active { display: flex; }
 
-  .group-label { font-size: 11px; color: var(--color-text-tertiary); padding: 2px 2px 0; display: flex; align-items: center; gap: 6px; }
-  .group-label .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .group-label { font-size: 11px; color: var(--color-text-tertiary); padding: 2px 2px 0;
+                 display: flex; align-items: center; gap: 6px; }
+  .group-label .dot { width: 6px; height: 6px; border-radius: 50%; flex: none; }
 
-  .todo-card { border-radius: 10px; background: rgba(255,255,255,.66);
-               border: 1px solid rgba(31,35,41,.08); padding: 11px 12px; }
+  .todo-card { border-radius: 10px; background: rgba(255,255,255,.7);
+               border: 1px solid rgba(31,35,41,.08); padding: 12px; }
   .todo-card.done { opacity: .55; }
-  .todo-head { display: flex; align-items: center; gap: 6px; margin-bottom: 7px; }
-  .todo-title { flex: 1; font-size: 13px; font-weight: 500; min-width: 0;
-                overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .todo-time { font-size: 11px; color: var(--color-text-tertiary); }
-  .todo-body { font-size: 12px; line-height: 1.6; }
-  .claim { display: flex; gap: 6px; padding: 3px 0; }
-  .claim-key { flex: none; width: 26px; font-size: 11px; }
+  .todo-head { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+  .todo-title { flex: 1; font-size: 13px; font-weight: 500; overflow: hidden;
+                text-overflow: ellipsis; white-space: nowrap; }
+  .todo-time  { font-size: 11px; color: var(--color-text-tertiary); flex: none; }
+  .todo-body  { font-size: 12px; line-height: 1.65; }
+
+  .conflict-hint { font-size: 12px; font-weight: 600; color: #944b01; background: #fff1e5;
+                   border-radius: 6px; padding: 5px 8px; margin-bottom: 8px;
+                   display: flex; align-items: center; gap: 5px; }
+  .claim { display: flex; gap: 8px; padding: 3px 0; }
+  .claim-key     { flex: none; width: 24px; font-size: 11px; font-weight: 600; }
   .claim-key.new { color: #1851b3; }
   .claim-key.old { color: #944b01; }
-  .claim-txt { color: var(--color-text-secondary); }
-  .todo-hint { font-size: 11px; color: var(--color-text-tertiary); margin-top: 4px; }
+  .claim-txt     { color: var(--color-text-secondary); }
 
-  .diff-line { display: flex; gap: 6px; font-size: 12px; line-height: 1.6; padding: 1px 0; }
-  .diff-sign { flex: none; width: 10px; font-weight: 600; }
+  .diff-line { display: flex; gap: 6px; font-size: 12px; line-height: 1.65; }
+  .diff-sign { flex: none; width: 10px; font-weight: 700; }
   .diff-line.add    .diff-sign { color: #018550; }
+  .diff-line.add    .diff-txt  { color: #018550; }
   .diff-line.remove .diff-sign { color: #b50707; }
   .diff-line.remove .diff-txt  { color: #95999e; text-decoration: line-through; }
-  .diff-line.same   .diff-sign { color: #c4c7cc; }
+  .diff-line.same   .diff-sign { color: transparent; }
   .diff-line.same   .diff-txt  { color: var(--color-text-tertiary); }
 
-  .todo-actions { display: flex; gap: 8px; margin-top: 10px; }
-  .todo-actions .toft-button { height: 28px; padding: 0 12px; font-size: 13px; }
-  .resolve-note { font-size: 12px; color: var(--color-text-secondary); display: flex; align-items: center; gap: 8px; }
-  .link-btn { border: none; background: none; color: var(--color-text-link); font-size: 12px; cursor: pointer; padding: 0; }
+  .todo-footer { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+  .todo-footer .toft-button { height: 28px; padding: 0 12px; font-size: 12px; }
+  .todo-footer .link-btn { margin-left: auto; }
+  .resolve-note { font-size: 12px; color: var(--color-text-secondary);
+                  display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .link-btn { border: none; background: none; color: var(--color-text-link);
+              font-size: 12px; cursor: pointer; padding: 0; }
 
-  .empty-tip { padding: 48px 0; text-align: center; color: var(--color-text-tertiary); font-size: 13px; }
-
-  .progress-card { border-radius: 10px; background: rgba(255,255,255,.66);
+  .progress-card { border-radius: 10px; background: rgba(255,255,255,.7);
                    border: 1px solid rgba(31,35,41,.08); padding: 11px 12px; }
-  .progress-head { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
-  .progress-title { font-size: 13px; font-weight: 500; }
-  .progress-time { font-size: 11px; color: var(--color-text-tertiary); }
-  .role-line { display: flex; align-items: center; gap: 10px; padding: 6px 0;
-               border-top: 1px solid rgba(31,35,41,.06); }
-  .role-name { width: 52px; font-size: 12px; color: var(--color-text-secondary); flex: none; }
-  .role-steps { flex: 1; display: flex; align-items: center; gap: 3px; }
-  .step-dot { width: 7px; height: 7px; border-radius: 50%; background: #e1e3e6; flex: none; }
-  .step-dot.done { background: #06bf75; }
-  .step-dot.active { background: #0c63fa; box-shadow: 0 0 0 3px rgba(12,99,250,.12); }
-  .step-line { width: 12px; height: 1px; background: #e1e3e6; flex: none; }
-  .step-line.done { background: #06bf75; }
-  .role-badge { font-size: 11px; border-radius: 9px; padding: 2px 7px; white-space: nowrap; flex: none; }
-  .role-badge.done  { background: #e8faf3; color: #018550; }
-  .role-badge.active{ background: #edf4ff; color: #1851b3; }
-  .role-badge.warn  { background: #fff1e5; color: #944b01; }
+  .progress-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .progress-title { font-size: 13px; font-weight: 500; flex: 1; min-width: 0;
+                    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-  /* 进度条 */
-  .prog-track { display: flex; align-items: flex-start; margin: 12px 0 10px; }
-  .prog-step { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: none; }
-  .prog-dot { width: 8px; height: 8px; border-radius: 50%; background: #e1e3e6; }
-  .prog-dot.done   { background: #06bf75; }
-  .prog-dot.active { background: #0c63fa; box-shadow: 0 0 0 3px rgba(12,99,250,.15); }
-  .prog-dot.fail   { background: #fc3232; box-shadow: 0 0 0 3px rgba(252,50,50,.15); }
-  .prog-line { flex: 1; height: 1px; background: #e1e3e6; margin-top: 4px; min-width: 16px; }
+  .prog-track { display: flex; align-items: flex-start; }
+  .prog-step  { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: none; }
+  .prog-dot   { width: 8px; height: 8px; border-radius: 50%; background: #e1e3e6; }
+  .prog-dot.done     { background: #06bf75; }
+  .prog-dot.active   { background: #0c63fa; box-shadow: 0 0 0 3px rgba(12,99,250,.15); }
+  .prog-dot.conflict { background: #fc860f; box-shadow: 0 0 0 3px rgba(252,134,15,.18); }
+  .prog-dot.fail     { background: #fc3232; box-shadow: 0 0 0 3px rgba(252,50,50,.15); }
+  .prog-line { flex: 1; height: 1px; background: #e1e3e6; margin-top: 4px; min-width: 20px; }
   .prog-line.done { background: #06bf75; }
-  .prog-step-label { font-size: 11px; color: var(--color-text-quaternary); white-space: nowrap; }
-  .prog-step-label.hi { color: var(--color-text-secondary); }
+  .prog-step-label { font-size: 10px; color: var(--color-text-quaternary); white-space: nowrap; }
+  .prog-step-label.hi       { color: var(--color-text-secondary); }
   .prog-step-label.fail-lbl { color: #b50707; }
-  .prog-badge { display: inline-flex; align-items: center; gap: 5px;
-                font-size: 12px; margin-top: 2px; padding: 5px 0 0; }
-  .fail-reason { font-size: 11px; color: #b50707; background: #fff5f5; border-radius: 7px;
-                 padding: 7px 10px; margin-top: 8px; line-height: 1.5; }
-  .role-badge.fail  { background: #fff5f5; color: #b50707; }
-  .fail-reason { font-size: 11px; color: #b50707; background: #fff5f5; border-radius: 6px;
-                 padding: 6px 9px; margin-top: 6px; display: flex; align-items: flex-start; gap: 6px; }
+  .prog-step-label.conf-lbl { color: #944b01; }
 
-  .space-card { border-radius: 10px; background: rgba(255,255,255,.66);
-               border: 1px solid rgba(31,35,41,.08); padding: 10px 12px;
-               display: flex; align-items: center; gap: 10px; }
+  .conflict-note { font-size: 11px; color: #944b01; background: #fff1e5;
+                   border-radius: 6px; padding: 6px 9px; margin-top: 8px; }
+  .fail-reason   { font-size: 11px; color: #b50707; background: #fff5f5;
+                   border-radius: 6px; padding: 6px 9px; margin-top: 8px; }
+
+  .role-badge { font-size: 11px; border-radius: 9px; padding: 2px 8px; white-space: nowrap; flex: none; }
+  .role-badge.done   { background: #e8faf3; color: #018550; }
+  .role-badge.active { background: #edf4ff; color: #1851b3; }
+  .role-badge.warn   { background: #fff1e5; color: #944b01; }
+  .role-badge.fail   { background: #fff5f5; color: #b50707; }
+
+  .space-card { border-radius: 10px; background: rgba(255,255,255,.7);
+                border: 1px solid rgba(31,35,41,.08); padding: 10px 12px;
+                display: flex; align-items: center; gap: 10px; }
   .space-icon { width: 34px; height: 34px; border-radius: 10px; background: var(--color-brand-soft);
-               color: var(--color-brand-primary); display: grid; place-items: center; font-size: 15px; flex: none; }
-  .space-main { flex: 1; min-width: 0; }
+                color: var(--color-brand-primary); display: grid; place-items: center;
+                font-size: 15px; flex: none; }
+  .space-main  { flex: 1; min-width: 0; }
   .space-title { font-size: 13px; font-weight: 500; }
-  .space-meta { font-size: 11px; color: var(--color-text-tertiary); margin-top: 2px; }
-  .list-head { display: flex; justify-content: space-between; align-items: center; padding: 4px 2px 0; }
+  .space-meta  { font-size: 11px; color: var(--color-text-tertiary); margin-top: 2px; }
+
+  .list-head { display: flex; justify-content: space-between; align-items: center; padding: 2px 0; }
   .list-head-label { font-size: 13px; font-weight: 600; }
-  .page-row { border-radius: 10px; background: rgba(255,255,255,.66);
+
+  .page-row { border-radius: 10px; background: rgba(255,255,255,.7);
               border: 1px solid rgba(31,35,41,.08); padding: 10px 12px;
               display: flex; align-items: center; gap: 10px; }
   .page-title-wrap { flex: 1; min-width: 0; }
   .page-title { font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
-  .page-sub { font-size: 11px; color: var(--color-text-tertiary); margin-top: 2px; }
-  .page-date { font-size: 11px; color: var(--color-text-tertiary); flex: none; }
+  .page-sub   { font-size: 11px; color: var(--color-text-tertiary); margin-top: 2px; }
+  .page-date  { font-size: 11px; color: var(--color-text-tertiary); flex: none; }
   .page-actions { display: flex; gap: 6px; flex: none; }
   .page-actions .toft-button { height: 26px; padding: 0 10px; font-size: 12px; }
-
-  /* 收藏面板 */
-  .fav-panel { position: absolute; inset: 0; background: rgba(250,252,255,.97);
-               overflow: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
-  .fav-item { display: flex; align-items: center; gap: 10px; padding: 9px 11px; border-radius: 8px;
-              background: #fff; border: 1px solid var(--color-border-default); cursor: pointer; }
-  .fav-item:hover { border-color: var(--color-brand-border); background: var(--color-brand-soft); }
-  .fav-item-title { flex: 1; font-size: 13px; font-weight: 500; }
-  .fav-item-meta  { font-size: 11px; color: var(--color-text-tertiary); }
-  .fav-unfav { border: none; background: transparent; color: #fc860f; cursor: pointer; font-size: 14px; }
-  .fav-empty { padding: 60px 0; text-align: center; color: var(--color-text-tertiary); font-size: 13px; }
-
-  /* 进度冲突节点 */
-  .prog-dot.conflict { background: #fc860f; box-shadow: 0 0 0 3px rgba(252,134,15,.18); }
-  .prog-step-label.conflict-lbl { color: #944b01; }
-  .conflict-note { font-size: 11px; color: #944b01; background: #fff1e5; border-radius: 6px;
-                   padding: 6px 9px; margin-top: 6px; }
-  .conflict-hint { font-size: 12px; font-weight: 600; color: #944b01; background: #fff1e5;
-                   border-radius: 6px; padding: 5px 8px; margin-bottom: 6px; display: inline-flex;
-                   align-items: center; gap: 4px; }
 </style>
 </head>
 <body>
@@ -184,296 +167,312 @@
   </div>
 
   <div class="workbench-main">
-    <div class="workbench-head">
-      <h1>景怡，下午好</h1>
-    </div>
+    <div class="workbench-head"><h1>景怡，下午好</h1></div>
 
     <div class="workbench-canvas">
-      <!-- ══ HRBP：知识库 ══ -->
+
+      <!-- ══ 知识库（消费）══ -->
       <section class="tool-card tool-card--knowledge">
         <div class="tool-card__header">
           <div class="tool-card__title">知识库</div>
-          <button class="toft-button toft-button--ghost" onclick="alert('打开知识库全屏')">全屏查看</button>
         </div>
         <div class="tool-card__body">
-          <div class="knowledge-layout-full">
-            <div class="tool-search">
+          <div class="k-full">
+            <div class="tool-search" style="margin-bottom:8px">
               <span style="color:var(--color-text-tertiary);font-size:13px">⌕</span>
               <input id="searchInput" placeholder="搜索知识、政策、流程…">
             </div>
             <div class="k-toolbar">
               <div class="tool-role-pills" id="rolePills"></div>
-              <button class="toft-button toft-button--ghost fav-toggle-btn" id="favToggleBtn" onclick="toggleFavView()">★ 我的收藏</button>
+              <button class="fav-btn" id="favBtn" onclick="toggleFavView()">
+                <span>★</span> 我的收藏
+              </button>
             </div>
             <div class="graph-area" id="graphAreaWrap">
               <canvas id="graphCanvas"></canvas>
               <div class="search-floating" id="searchFloating"></div>
-              <div class="fav-panel" id="favPanel" style="display:none"></div>
-              <div class="graph-hint">点击节点跳转知识页 · 滚轮缩放 · 拖拽平移</div>
+              <div class="fav-panel" id="favPanel"></div>
+              <div class="graph-hint" id="graphHint">点击节点跳转 · 点击节点旁 ★ 收藏 · 滚轮缩放</div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- ══ COE：知识管理 ══ -->
+      <!-- ══ 知识管理（生产）══ -->
       <section class="tool-card tool-card--manage">
         <div class="tool-card__header">
           <div class="tool-card__title">知识管理</div>
-          <button class="toft-button toft-button--ghost" onclick="window.open('https://docs.corp.kuaishou.com/cloud','_blank')">上传文档</button>
+          <button class="toft-button toft-button--ghost"
+                  onclick="window.open('https://docs.corp.kuaishou.com/cloud','_blank')">上传文档</button>
         </div>
         <div class="tool-card__body">
           <div class="manage-shell">
             <div class="toft-tabs">
-              <div class="toft-tab active" data-tab="pages" onclick="switchTab('pages', this)">知识管理</div>
-              <div class="toft-tab" data-tab="todo" onclick="switchTab('todo', this)">待处理 <span class="toft-badge toft-badge--danger" id="pendingBadgeTab" style="margin-left:4px">0</span></div>
-              <div class="toft-tab" data-tab="progress" onclick="switchTab('progress', this)">进度跟踪</div>
+              <div class="toft-tab active" data-tab="pages"    onclick="switchTab('pages',this)">知识管理</div>
+              <div class="toft-tab"        data-tab="todo"     onclick="switchTab('todo',this)">
+                待处理 <span class="toft-badge toft-badge--danger" id="pendingBadge" style="margin-left:3px">0</span>
+              </div>
+              <div class="toft-tab"        data-tab="progress" onclick="switchTab('progress',this)">进度跟踪</div>
             </div>
             <div class="tab-panel active" id="panel-pages"></div>
-            <div class="tab-panel" id="panel-todo"></div>
-            <div class="tab-panel" id="panel-progress"></div>
+            <div class="tab-panel"        id="panel-todo"></div>
+            <div class="tab-panel"        id="panel-progress"></div>
           </div>
         </div>
       </section>
-    </div>
+
+    </div><!-- /canvas -->
   </div>
 </div>
 
 <script>
-/* ═════════ 状态 ═════════ */
-const state = {
-  role: 'hrbp',
-  favorites: new Set(JSON.parse(localStorage.getItem('hr-kc-favs') || '[]')),
-  zoom: 1,
-  offset: { x: 0, y: 0 },
-  nodes: [], edges: [],
-  hovered: null, dragging: false,
-  showFavs: false,
-};
-const ROLE_LABEL = { hrbp:'HRBP', manager:'管理者', all:'全员', recruiter:'招聘' };
+/* ════════════════════════════════
+   状态
+════════════════════════════════ */
 const KB_BASE = 'https://knowledge-cloud.staging.kuaishou.com/?app=hr#/ssc-service-delivery/kb';
 
-/* ═════════ HRBP 卡片 ═════════ */
+const S = {
+  role: 'hrbp',
+  favs: new Set(JSON.parse(localStorage.getItem('hr-kc-favs') || '[]')),
+  zoom: 1,
+  pan: { x: 0, y: 0 },
+  nodes: [], edges: [],
+  hovered: null,
+  hoveredFavBtn: null,   // page id whose fav-star is being hovered
+  dragging: false,
+  showFavs: false,
+  resolved: {},
+};
+
+const ROLE_LABEL = { hrbp:'HRBP', manager:'管理者', all:'全员', recruiter:'招聘' };
+const KIND_META = {
+  conflict: { label:'冲突 · 需裁决', color:'#fc3232' },
+  proposal: { label:'变更 · 待确认', color:'#fc860f' },
+  quality:  { label:'质量 · 待复核', color:'#7938fc' },
+};
+
+/* ════════════════════════════════
+   消费卡片 — 图谱
+════════════════════════════════ */
 const canvas = document.getElementById('graphCanvas');
-const ctx = canvas.getContext('2d');
+const ctx    = canvas.getContext('2d');
+const FONT   = "-apple-system,'PingFang SC',sans-serif";
+
+/* 配色：只用两色 + 灰，干净 */
+const C = {
+  center:     { fill:'#1f2329', text:'#fff' },
+  domain:     { fill:'#1f2329', stroke:'#1f2329', text:'#fff' },
+  sub:        { fill:'#fff', stroke:'#c4c7cc', text:'#5c6066' },
+  page:       { fill:'#0c63fa', text:'#fff' },
+  pageFav:    { fill:'#fc860f' },
+  pageConfl:  { fill:'#fc3232' },
+  edge:       'rgba(31,35,41,.10)',
+};
 
 function renderRolePills() {
   document.getElementById('rolePills').innerHTML = DATA.roles.map(r =>
-    `<div class="tool-role-pill ${state.role === r.key ? 'active' : ''}" onclick="selectRole('${r.key}')">${r.label}</div>`
+    `<div class="tool-role-pill ${S.role===r.key?'active':''}" onclick="selectRole('${r.key}')">${r.label}</div>`
   ).join('');
 }
 
 function selectRole(role) {
-  state.role = role;
-  state.zoom = 1; state.offset = { x: 0, y: 0 };
-  state.showFavs = false;
-  updateFavToggle();
+  S.role = role; S.zoom = 1; S.pan = {x:0,y:0};
+  S.showFavs = false;
+  document.getElementById('favPanel').classList.remove('show');
+  document.getElementById('favBtn').classList.remove('active');
   renderRolePills(); resizeCanvas();
 }
 
 function resizeCanvas() {
-  const wrap = document.getElementById('graphAreaWrap');
-  const rect = wrap.getBoundingClientRect();
-  canvas.width  = rect.width;
-  canvas.height = rect.height;
+  const rect = document.getElementById('graphAreaWrap').getBoundingClientRect();
+  canvas.width = rect.width; canvas.height = rect.height;
   buildGraph(); drawGraph();
 }
 
-/* ─── 图谱构建：同心圆布局，更清晰 ─── */
+/* 同心圆布局 */
 function buildGraph() {
-  const W = canvas.width, H = canvas.height;
-  const cx = W / 2, cy = H / 2;
-  const domains = (DATA.graph[state.role] || { domains: [] }).domains;
-  const nodes = [{ id: 'center', kind: 'center', x: cx, y: cy, r: 30, label: 'HR域' }];
+  const W = canvas.width, H = canvas.height, cx = W/2, cy = H/2;
+  const domains = (DATA.graph[S.role]||{domains:[]}).domains;
+  const R1 = Math.min(W,H)*0.21;
+  const R2 = Math.min(W,H)*0.37;
+  const R3 = Math.min(W,H)*0.47;
+  const nodes = [{id:'center', kind:'center', x:cx, y:cy, r:28, label:'HR域'}];
   const edges = [];
-
-  const R1 = Math.min(W, H) * 0.22;   // 领域环
-  const R2 = Math.min(W, H) * 0.38;   // 子领域环
-  const R3 = Math.min(W, H) * 0.47;   // 叶子环
-
-  const dCount = domains.length;
   domains.forEach((dom, di) => {
-    const da = -Math.PI / 2 + (Math.PI * 2 / dCount) * di;
-    const dx = cx + R1 * Math.cos(da), dy = cy + R1 * Math.sin(da);
-    nodes.push({ id: dom.key, kind: 'domain', x: dx, y: dy, r: 22, label: dom.label });
-    edges.push({ from: 'center', to: dom.key });
-
-    const subs = dom.children || [];
+    const da = -Math.PI/2 + Math.PI*2/domains.length*di;
+    const dx = cx+R1*Math.cos(da), dy = cy+R1*Math.sin(da);
+    nodes.push({id:dom.key, kind:'domain', x:dx, y:dy, r:20, label:dom.label});
+    edges.push({from:'center', to:dom.key});
+    const subs = dom.children||[];
     subs.forEach((sub, si) => {
-      const spread = subs.length > 1 ? (Math.PI * 0.55) : 0;
-      const sa = subs.length === 1 ? da : da - spread / 2 + spread * si / (subs.length - 1);
-      const sx = cx + R2 * Math.cos(sa), sy = cy + R2 * Math.sin(sa);
-      nodes.push({ id: sub.key, kind: 'sub', x: sx, y: sy, r: 16, label: sub.label });
-      edges.push({ from: dom.key, to: sub.key });
-
-      const pages = sub.pages || [];
+      const sp = subs.length>1 ? Math.PI*0.52 : 0;
+      const sa = subs.length===1 ? da : da-sp/2+sp*si/(subs.length-1);
+      const sx = cx+R2*Math.cos(sa), sy = cy+R2*Math.sin(sa);
+      nodes.push({id:sub.key, kind:'sub', x:sx, y:sy, r:15, label:sub.label});
+      edges.push({from:dom.key, to:sub.key});
+      const pages = sub.pages||[];
       pages.forEach((page, pi) => {
-        const pspread = pages.length > 1 ? (Math.PI * 0.38) : 0;
-        const pa = pages.length === 1 ? sa : sa - pspread / 2 + pspread * pi / (pages.length - 1);
-        const px = cx + R3 * Math.cos(pa), py = cy + R3 * Math.sin(pa);
-        nodes.push({ id: page.id, kind: 'page', x: px, y: py, r: 10, label: page.title, page });
-        edges.push({ from: sub.key, to: page.id });
+        const pp = pages.length>1 ? Math.PI*0.36 : 0;
+        const pa = pages.length===1 ? sa : sa-pp/2+pp*pi/(pages.length-1);
+        nodes.push({id:page.id, kind:'page', x:cx+R3*Math.cos(pa), y:cy+R3*Math.sin(pa), r:9, label:page.title, page});
+        edges.push({from:sub.key, to:page.id});
       });
     });
   });
-  state.nodes = nodes; state.edges = edges;
+  S.nodes = nodes; S.edges = edges;
 }
 
-/* ─── 图谱绘制：工作台风格 ─── */
+/* 绘制 */
 function drawGraph() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
   ctx.save();
-  ctx.translate(state.offset.x, state.offset.y);
-  ctx.scale(state.zoom, state.zoom);
+  ctx.translate(S.pan.x, S.pan.y);
+  ctx.scale(S.zoom, S.zoom);
 
-  const map = Object.fromEntries(state.nodes.map(n => [n.id, n]));
-  const FONT = "-apple-system,'PingFang SC',sans-serif";
+  const map = Object.fromEntries(S.nodes.map(n=>[n.id,n]));
 
-  // 连线：细虚线
-  state.edges.forEach(e => {
-    const a = map[e.from], b = map[e.to]; if (!a || !b) return;
-    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
-    ctx.strokeStyle = 'rgba(31,35,41,.10)'; ctx.lineWidth = 1;
-    ctx.setLineDash([3, 3]); ctx.stroke(); ctx.setLineDash([]);
+  /* 连线 */
+  ctx.strokeStyle = C.edge; ctx.lineWidth = 1; ctx.setLineDash([3,4]);
+  S.edges.forEach(e => {
+    const a=map[e.from], b=map[e.to]; if(!a||!b) return;
+    ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
   });
+  ctx.setLineDash([]);
 
-  // 节点
-  state.nodes.forEach(n => {
-    const hov = state.hovered === n.id;
-    const isFav = n.kind === 'page' && state.favorites.has(n.id);
-
-    if (n.kind === 'center') {
-      // 中心：渐变圆
-      const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r);
-      g.addColorStop(0, '#4f7bf7'); g.addColorStop(1, '#0c63fa');
-      ctx.beginPath(); ctx.arc(n.x, n.y, n.r + (hov ? 2 : 0), 0, Math.PI * 2);
-      ctx.fillStyle = g; ctx.fill();
-      ctx.strokeStyle = 'rgba(255,255,255,.6)'; ctx.lineWidth = 1.5; ctx.stroke();
-      ctx.fillStyle = '#fff'; ctx.font = `bold 11px ${FONT}`;
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(n.label, n.x, n.y);
-
-    } else if (n.kind === 'domain') {
-      // 领域：圆形，品牌蓝描边，白底
-      ctx.beginPath(); ctx.arc(n.x, n.y, n.r + (hov ? 2 : 0), 0, Math.PI * 2);
-      ctx.fillStyle = hov ? '#edf4ff' : '#fff';
-      ctx.fill();
-      ctx.strokeStyle = '#0c63fa'; ctx.lineWidth = 1.5; ctx.stroke();
-      ctx.fillStyle = '#0c63fa'; ctx.font = `500 10px ${FONT}`;
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(n.label, n.x, n.y);
-
-    } else if (n.kind === 'sub') {
-      // 子领域：圆角矩形风格（用圆形近似，绿色系）
-      ctx.beginPath(); ctx.arc(n.x, n.y, n.r + (hov ? 2 : 0), 0, Math.PI * 2);
-      ctx.fillStyle = hov ? '#e8faf3' : '#f0faf6';
-      ctx.fill();
-      ctx.strokeStyle = '#06bf75'; ctx.lineWidth = 1.2; ctx.stroke();
-      ctx.fillStyle = '#018550'; ctx.font = `10px ${FONT}`;
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(n.label, n.x, n.y);
-
+  /* 节点 */
+  S.nodes.forEach(n => {
+    const hov = S.hovered===n.id;
+    if (n.kind==='center') {
+      ctx.beginPath(); ctx.arc(n.x,n.y,n.r+(hov?2:0),0,Math.PI*2);
+      ctx.fillStyle='#1f2329'; ctx.fill();
+      ctx.fillStyle='#fff'; ctx.font=`bold 11px ${FONT}`;
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(n.label,n.x,n.y);
+    } else if (n.kind==='domain') {
+      ctx.beginPath(); ctx.arc(n.x,n.y,n.r+(hov?2:0),0,Math.PI*2);
+      ctx.fillStyle = hov ? '#333' : '#1f2329'; ctx.fill();
+      ctx.fillStyle='#fff'; ctx.font=`500 10px ${FONT}`;
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(n.label,n.x,n.y);
+    } else if (n.kind==='sub') {
+      ctx.beginPath(); ctx.arc(n.x,n.y,n.r+(hov?2:0),0,Math.PI*2);
+      ctx.fillStyle=hov?'#f5f5f5':'#fff'; ctx.fill();
+      ctx.strokeStyle='#c4c7cc'; ctx.lineWidth=1; ctx.stroke();
+      ctx.fillStyle='#5c6066'; ctx.font=`10px ${FONT}`;
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(n.label,n.x,n.y);
     } else {
-      // 叶子（知识页）：小圆点 + 标签
-      const fill = n.page.hasConflict ? '#fc860f'
-                 : isFav             ? '#fc860f'
-                 : n.page.isNew      ? '#06bf75'
-                 : '#7938fc';
-      ctx.beginPath(); ctx.arc(n.x, n.y, n.r + (hov ? 2 : 0), 0, Math.PI * 2);
-      ctx.fillStyle = fill; ctx.fill();
+      /* 叶子节点 */
+      const isFav   = S.favs.has(n.id);
+      const fill    = n.page.hasConflict ? '#fc3232' : isFav ? '#fc860f' : '#0c63fa';
+      ctx.beginPath(); ctx.arc(n.x,n.y,n.r+(hov?2:0),0,Math.PI*2);
+      ctx.fillStyle=fill; ctx.fill();
+      if (hov) { ctx.strokeStyle='rgba(255,255,255,.8)'; ctx.lineWidth=1.5; ctx.stroke(); }
+      /* 标签 */
+      ctx.fillStyle= hov?'#1f2329':'#5c6066';
+      ctx.font=`${hov?500:400} 10px ${FONT}`;
+      ctx.textAlign='center'; ctx.textBaseline='top';
+      const short = n.label.length>9 ? n.label.slice(0,9)+'…' : n.label;
+      ctx.fillText(short, n.x, n.y+n.r+5);
+      /* 收藏按钮（hover 时在节点左上方绘制一个可点击的星） */
       if (hov) {
-        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+        const sx = n.x + n.r*0.6, sy = n.y - n.r*0.6;
+        const hovFav = S.hoveredFavBtn===n.id;
+        ctx.beginPath(); ctx.arc(sx,sy,7,0,Math.PI*2);
+        ctx.fillStyle = hovFav||isFav ? '#fc860f' : 'rgba(255,255,255,.9)';
+        ctx.fill();
+        ctx.strokeStyle='rgba(31,35,41,.12)'; ctx.lineWidth=1; ctx.stroke();
+        ctx.fillStyle = hovFav||isFav ? '#fff' : '#aaa';
+        ctx.font=`10px ${FONT}`; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText('★',sx,sy);
       }
-      if (isFav) {
-        // 收藏星标
-        ctx.fillStyle = '#fff'; ctx.font = `8px ${FONT}`;
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText('★', n.x, n.y);
-      }
-      // 文字标签
-      ctx.fillStyle = hov ? '#1f2329' : '#5c6066';
-      ctx.font = `${hov ? 500 : 400} 10px ${FONT}`;
-      ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-      const short = n.label.length > 9 ? n.label.slice(0, 9) + '…' : n.label;
-      ctx.fillText(short, n.x, n.y + n.r + 5);
     }
   });
-
   ctx.restore();
 }
 
-/* ─── 交互 ─── */
-function hitNode(cx, cy) {
+function getFavBtnPos(n) {
+  return { x: n.x + n.r*0.6, y: n.y - n.r*0.6, r: 7 };
+}
+
+function hitTest(clientX, clientY) {
   const rect = canvas.getBoundingClientRect();
-  const x = (cx - rect.left - state.offset.x) / state.zoom;
-  const y = (cy - rect.top  - state.offset.y) / state.zoom;
-  for (let i = state.nodes.length - 1; i >= 0; i--) {
-    const n = state.nodes[i], dx = x - n.x, dy = y - n.y;
-    if (dx * dx + dy * dy <= (n.r + 6) * (n.r + 6)) return n;
+  const mx = (clientX-rect.left-S.pan.x)/S.zoom;
+  const my = (clientY-rect.top -S.pan.y)/S.zoom;
+  /* 先检测 fav 小星（优先） */
+  for (let i=S.nodes.length-1;i>=0;i--) {
+    const n=S.nodes[i];
+    if (n.kind!=='page') continue;
+    if (S.hovered===n.id) {
+      const fb=getFavBtnPos(n);
+      const dx=mx-fb.x, dy=my-fb.y;
+      if (dx*dx+dy*dy<=(fb.r+2)*(fb.r+2)) return {node:n, fav:true};
+    }
+  }
+  for (let i=S.nodes.length-1;i>=0;i--) {
+    const n=S.nodes[i], dx=mx-n.x, dy=my-n.y;
+    if (dx*dx+dy*dy<=(n.r+5)*(n.r+5)) return {node:n, fav:false};
   }
   return null;
 }
 
 canvas.addEventListener('mousemove', e => {
-  if (state.dragging) { state.offset.x += e.movementX; state.offset.y += e.movementY; drawGraph(); return; }
-  const n = hitNode(e.clientX, e.clientY);
-  state.hovered = n ? n.id : null;
-  canvas.style.cursor = (n && n.kind === 'page') ? 'pointer' : n ? 'default' : 'grab';
-  drawGraph();
+  if (S.dragging) { S.pan.x+=e.movementX; S.pan.y+=e.movementY; drawGraph(); return; }
+  const hit = hitTest(e.clientX, e.clientY);
+  const prevHov = S.hovered, prevFavBtn = S.hoveredFavBtn;
+  S.hovered       = hit ? hit.node.id : null;
+  S.hoveredFavBtn = (hit && hit.fav) ? hit.node.id : null;
+  if (hit && hit.fav)          canvas.style.cursor='pointer';
+  else if (hit && hit.node.kind==='page') canvas.style.cursor='pointer';
+  else if (hit)                canvas.style.cursor='default';
+  else                         canvas.style.cursor='grab';
+  if (S.hovered!==prevHov || S.hoveredFavBtn!==prevFavBtn) drawGraph();
 });
 canvas.addEventListener('mousedown', e => {
-  const n = hitNode(e.clientX, e.clientY);
-  if (!n || n.kind !== 'page') { state.dragging = true; canvas.style.cursor = 'grabbing'; }
+  const hit=hitTest(e.clientX, e.clientY);
+  if (!hit || hit.node.kind!=='page') { S.dragging=true; canvas.style.cursor='grabbing'; }
 });
-window.addEventListener('mouseup', () => { state.dragging = false; });
+window.addEventListener('mouseup', ()=>{ S.dragging=false; });
 canvas.addEventListener('click', e => {
-  const n = hitNode(e.clientX, e.clientY);
-  if (n && n.kind === 'page') {
-    window.open(KB_BASE + '/' + n.page.id, '_blank');
-  }
-});
-canvas.addEventListener('contextmenu', e => {
-  e.preventDefault();
-  const n = hitNode(e.clientX, e.clientY);
-  if (n && n.kind === 'page') toggleFav(n.page.id);
+  const hit=hitTest(e.clientX,e.clientY);
+  if (!hit) return;
+  if (hit.fav) { toggleFav(hit.node.id); return; }
+  if (hit.node.kind==='page') window.open(KB_BASE+'/'+hit.node.id,'_blank');
 });
 canvas.addEventListener('wheel', e => {
   e.preventDefault();
-  state.zoom = Math.min(3, Math.max(.45, state.zoom * (e.deltaY < 0 ? 1.08 : .92)));
+  S.zoom=Math.min(3,Math.max(.4, S.zoom*(e.deltaY<0?1.08:.93)));
   drawGraph();
-}, { passive: false });
+}, {passive:false});
 
-/* ─── 收藏 ─── */
+/* 收藏 */
 function toggleFav(id) {
-  state.favorites.has(id) ? state.favorites.delete(id) : state.favorites.add(id);
-  localStorage.setItem('hr-kc-favs', JSON.stringify([...state.favorites]));
+  S.favs.has(id) ? S.favs.delete(id) : S.favs.add(id);
+  localStorage.setItem('hr-kc-favs', JSON.stringify([...S.favs]));
   drawGraph();
-  if (state.showFavs) renderFavPanel();
+  if (S.showFavs) renderFavPanel();
 }
 
 function toggleFavView() {
-  state.showFavs = !state.showFavs;
-  updateFavToggle();
-  document.getElementById('favPanel').style.display = state.showFavs ? 'flex' : 'none';
-  document.getElementById('favPanel').style.flexDirection = 'column';
-  if (state.showFavs) renderFavPanel();
-}
-
-function updateFavToggle() {
-  const btn = document.getElementById('favToggleBtn');
-  if (btn) btn.classList.toggle('active', state.showFavs);
+  S.showFavs = !S.showFavs;
+  const panel = document.getElementById('favPanel');
+  const btn   = document.getElementById('favBtn');
+  panel.classList.toggle('show', S.showFavs);
+  btn.classList.toggle('active', S.showFavs);
+  if (S.showFavs) renderFavPanel();
 }
 
 function renderFavPanel() {
-  const el = document.getElementById('favPanel');
-  const pages = allPages().filter(p => state.favorites.has(p.id));
+  const panel = document.getElementById('favPanel');
+  const pages = allPages().filter(p=>S.favs.has(p.id));
   if (!pages.length) {
-    el.innerHTML = '<div class="fav-empty">还没有收藏<br><span style="font-size:12px">右键点击图谱中的知识节点可收藏</span></div>';
+    panel.innerHTML = '<div class="fav-empty"><span style="font-size:22px">☆</span><span>还没有收藏</span><span style="font-size:11px">点击节点旁的 ★ 可收藏常用知识</span></div>';
     return;
   }
-  el.innerHTML = '<div style="font-size:13px;font-weight:600;padding:0 2px 4px">我的收藏</div>' +
-    pages.map(p => `
+  panel.innerHTML = '<div style="font-size:13px;font-weight:600;padding:0 2px 4px">我的收藏 · '+pages.length+'</div>' +
+    pages.map(p=>`
       <div class="fav-item" onclick="window.open('${KB_BASE}/${p.id}','_blank')">
-        <div>
+        <div class="fav-item-info">
           <div class="fav-item-title">${p.title}</div>
           <div class="fav-item-meta">${p.domain} · ${p.sub} · ${p.updatedAt}</div>
         </div>
@@ -481,235 +480,182 @@ function renderFavPanel() {
       </div>`).join('');
 }
 
-/* ─── 搜索 ─── */
+/* 搜索 */
 function allPages() {
-  const out = [];
-  (DATA.graph[state.role] || { domains: [] }).domains.forEach(d =>
-    d.children.forEach(s => s.pages.forEach(p => out.push({ ...p, domain: d.label, sub: s.label }))));
+  const out=[];
+  (DATA.graph[S.role]||{domains:[]}).domains.forEach(d=>
+    d.children.forEach(s=>s.pages.forEach(p=>out.push({...p,domain:d.label,sub:s.label}))));
   return out;
 }
 
-document.getElementById('searchInput').addEventListener('input', e => {
-  const q = e.target.value.trim().toLowerCase();
-  const box = document.getElementById('searchFloating');
-  if (!q) { box.classList.remove('show'); box.innerHTML = ''; return; }
-  const hits = allPages().filter(p =>
-    p.title.toLowerCase().includes(q) || p.summary.toLowerCase().includes(q) || p.tag.toLowerCase().includes(q));
+document.getElementById('searchInput').addEventListener('input', e=>{
+  const q=e.target.value.trim().toLowerCase();
+  const box=document.getElementById('searchFloating');
+  if (!q) { box.classList.remove('show'); return; }
+  const hits=allPages().filter(p=>
+    p.title.toLowerCase().includes(q)||p.summary.toLowerCase().includes(q)||p.tag.toLowerCase().includes(q));
   box.classList.add('show');
   box.innerHTML = hits.length
-    ? hits.map(p => `
+    ? hits.map(p=>`
         <div class="search-item" onclick="window.open('${KB_BASE}/${p.id}','_blank')">
           <div class="search-item__title">${p.title}
             <span class="tiny-tag tiny-tag--neutral">${p.tag}</span>
-            ${p.hasConflict ? '<span class="tiny-tag tiny-tag--warn">有冲突</span>' : ''}
-            ${p.isNew ? '<span class="tiny-tag tiny-tag--success">已更新</span>' : ''}
+            ${p.hasConflict?'<span class="tiny-tag tiny-tag--warn">有冲突</span>':''}
+            ${p.isNew?'<span class="tiny-tag tiny-tag--success">已更新</span>':''}
           </div>
-          <div class="search-item__meta">${p.domain} · ${p.sub} · 更新于 ${p.updatedAt}</div>
+          <div class="search-item__meta">${p.domain} · ${p.sub} · ${p.updatedAt}</div>
         </div>`).join('')
     : '<div style="padding:40px 0;text-align:center;color:var(--color-text-tertiary)">没有找到相关知识</div>';
 });
 
-/* ═════════ COE 卡片 ═════════ */
+/* ════════════════════════════════
+   生产卡片
+════════════════════════════════ */
+function pendingCount() {
+  return DATA.pendingItems.filter(i=>!S.resolved[i.id]).length;
+}
 
-const KIND_META = {
-  conflict: { label: '冲突 · 需裁决', color: '#fc3232', desc: '两份文档说法不一致，不裁决就无法入库' },
-  proposal: { label: '变更 · 待确认', color: '#fc860f', desc: '原文内容有更新，确认后应用到知识页' },
-  quality:  { label: '质量 · 待复核', color: '#7938fc', desc: 'AI 加工信心不足，人工过一眼再放行' },
-};
-
-function pendingList() { return DATA.pendingItems.filter(i => !state.resolved[i.id]); }
-
-function updateBadges() {
-  const n = pendingList().length;
-  const el = document.getElementById('pendingBadgeTab');
-  if (el) el.textContent = n;
+function updateBadge() {
+  const el=document.getElementById('pendingBadge');
+  if (el) el.textContent=pendingCount();
 }
 
 function switchTab(tab, el) {
-  document.querySelectorAll('.toft-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.toft-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('panel-' + tab).classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+tab).classList.add('active');
 }
 
+/* 待处理 */
 function renderTodoPanel() {
-  const el = document.getElementById('panel-todo');
-  const groups = ['conflict', 'proposal', 'quality'];
-  const html = groups.map(kind => {
-    const items = DATA.pendingItems.filter(i => i.kind === kind);
+  const el=document.getElementById('panel-todo');
+  const groups=['conflict','proposal','quality'];
+  const html=groups.map(kind=>{
+    const items=DATA.pendingItems.filter(i=>i.kind===kind);
     if (!items.length) return '';
-    const meta = KIND_META[kind];
-    return `
-      <div class="group-label">
-        <span class="dot" style="background:${meta.color}"></span>
-        ${meta.label} · ${items.length}
-        <span style="color:var(--color-text-quaternary)">${meta.desc}</span>
-      </div>
-      ${items.map(item => renderTodoCard(item)).join('')}`;
+    const meta=KIND_META[kind];
+    return `<div class="group-label"><span class="dot" style="background:${meta.color}"></span>${meta.label} · ${items.length}</div>`+
+           items.map(i=>renderTodoCard(i)).join('');
   }).join('');
-
-  el.innerHTML = html || '<div class="empty-tip">待处理已清空，暂无需要你介入的事项 ✅</div>';
+  el.innerHTML = html || '<div style="padding:48px 0;text-align:center;color:var(--color-text-tertiary)">待处理已清空 ✅</div>';
 }
 
 function renderTodoCard(item) {
-  const done = state.resolved[item.id];
-  const meta = KIND_META[item.kind];
+  const done=S.resolved[item.id];
+  const meta=KIND_META[item.kind];
+  const tagStyle=`background:${meta.color}1a;color:${meta.color}`;
 
   if (done) {
-    const text = {
-      new:  '已用新的这份',
-      old:  '已保留原来的',
-      pass: '已通过，知识页已上线',
-      redo: '已退回重新加工',
-    }[done];
-    return `
-      <div class="todo-card done">
-        <div class="todo-head">
-          <span class="tiny-tag" style="background:${meta.color}1a;color:${meta.color}">${meta.label}</span>
-          <div class="todo-title">${item.pageTitle}</div>
-        </div>
-        <div class="resolve-note">✓ ${text}
-          <button class="link-btn" onclick="undo('${item.id}')">撤销</button>
-        </div>
-      </div>`;
+    const txt={new:'已用新版',old:'已保留旧的',pass:'已通过上线',redo:'已退回重新加工'}[done];
+    return `<div class="todo-card done">
+      <div class="todo-head">
+        <span class="tiny-tag" style="${tagStyle}">${meta.label}</span>
+        <div class="todo-title">${item.pageTitle}</div>
+      </div>
+      <div class="resolve-note">✓ ${txt}<button class="link-btn" style="margin-left:auto" onclick="undoResolve('${item.id}')">撤销</button></div>
+    </div>`;
   }
 
-  let body = '';
-  if (item.kind === 'conflict') {
-    body = `
-      <div class="conflict-hint">⚡ ${item.hint}</div>
+  let body='';
+  if (item.kind==='conflict') {
+    body=`<div class="conflict-hint">⚡ ${item.hint}</div>
       <div class="claim"><span class="claim-key new">新的</span><span class="claim-txt">${item.newText}</span></div>
       <div class="claim"><span class="claim-key old">旧的</span><span class="claim-txt">${item.oldText}</span></div>`;
-  } else if (item.kind === 'proposal') {
-    body = item.diff.map(d => `
-      <div class="diff-line ${d.type}">
-        <span class="diff-sign">${d.type === 'add' ? '+' : d.type === 'remove' ? '−' : ''}</span>
-        <span class="diff-txt">${d.text}</span>
-      </div>`).join('');
+  } else if (item.kind==='proposal') {
+    body=item.diff.map(d=>`<div class="diff-line ${d.type}"><span class="diff-sign">${d.type==='add'?'+':d.type==='remove'?'−':''}</span><span class="diff-txt">${d.text}</span></div>`).join('');
   } else {
-    body = `
-      <div style="color:var(--color-text-secondary)">${item.reason}</div>
-      <div class="todo-hint">AI 信心 ${Math.round(item.confidence * 100)}% · 生成 ${item.pagesCount} 个页面</div>`;
+    body=`<div style="color:var(--color-text-secondary)">${item.reason}</div>
+      <div style="font-size:11px;color:var(--color-text-tertiary);margin-top:3px">AI 信心 ${Math.round(item.confidence*100)}% · ${item.pagesCount} 个页面</div>`;
   }
 
-  const actions = item.kind === 'quality'
-    ? `<button class="toft-button toft-button--ghost" onclick="decide('${item.id}','redo')">重新加工</button>
-       <button class="toft-button toft-button--primary" onclick="decide('${item.id}','pass')">通过</button>`
-    : `<button class="toft-button toft-button--ghost" onclick="decide('${item.id}','old')">${item.kind === 'conflict' ? '保留旧的' : '暂不更新'}</button>
-       <button class="toft-button toft-button--primary" onclick="decide('${item.id}','new')">用新版</button>`;
+  const btns=item.kind==='quality'
+    ? `<button class="toft-button toft-button--ghost" onclick="resolve('${item.id}','redo')">重新加工</button>
+       <button class="toft-button toft-button--primary" onclick="resolve('${item.id}','pass')">通过</button>`
+    : `<button class="toft-button toft-button--ghost" onclick="resolve('${item.id}','old')">${item.kind==='conflict'?'保留旧的':'暂不更新'}</button>
+       <button class="toft-button toft-button--primary" onclick="resolve('${item.id}','new')">用新版</button>`;
 
-  return `
-    <div class="todo-card">
-      <div class="todo-head">
-        <span class="tiny-tag" style="background:${meta.color}1a;color:${meta.color}">${meta.label}</span>
-        <div class="todo-title">${item.pageTitle}</div>
-        <span class="todo-time">${item.uploadedAt}</span>
-      </div>
-      <div class="todo-body">${body}</div>
-      <div class="todo-actions">${actions}</div>
-    </div>`;
+  return `<div class="todo-card">
+    <div class="todo-head">
+      <span class="tiny-tag" style="${tagStyle}">${meta.label}</span>
+      <div class="todo-title">${item.pageTitle}</div>
+      <span class="todo-time">${item.uploadedAt}</span>
+    </div>
+    <div class="todo-body">${body}</div>
+    <div class="todo-footer" style="justify-content:flex-end">${btns}</div>
+  </div>`;
 }
 
-function decide(id, choice) {
-  state.resolved[id] = choice;
-  updateBadges(); renderTodoPanel();
-}
+function resolve(id, choice) { S.resolved[id]=choice; updateBadge(); renderTodoPanel(); }
+function undoResolve(id)     { delete S.resolved[id]; updateBadge(); renderTodoPanel(); }
 
-function undo(id) {
-  delete state.resolved[id];
-  updateBadges(); renderTodoPanel();
-}
-
+/* 进度跟踪 */
 function renderProgressPanel() {
-  const STEPS    = ['已提交', '生成知识', '冲突检查', '完成'];
-  const STEP_IDX = { submitted: 0, generating: 1, checking: 2, done: 3 };
+  const STEPS    = ['已提交','生成知识','冲突检查','完成'];
+  const STEP_IDX = { submitted:0, generating:1, checking:2, done:3 };
+  document.getElementById('panel-progress').innerHTML = DATA.tasks.map(t=>{
+    const failed = t.status==='failed';
+    const done   = t.status==='done';
+    const cur    = failed ? (STEP_IDX[t.failedAt]??1) : (STEP_IDX[t.status]??0);
 
-  document.getElementById('panel-progress').innerHTML = DATA.tasks.map(t => {
-    const failed   = t.status === 'failed';
-    const done     = t.status === 'done';
-    const checking = t.status === 'checking';
-    const cur      = failed ? (STEP_IDX[t.failedAt] ?? 1) : (STEP_IDX[t.status] ?? 0);
+    let statusBadge='';
+    if (failed)               statusBadge='<span class="role-badge fail">处理失败</span>';
+    else if (done&&t.conflictCount) statusBadge='<span class="role-badge warn">'+t.conflictCount+' 项待裁决</span>';
+    else if (done)            statusBadge='<span class="role-badge done">'+t.pageCount+' 页已生效</span>';
+    else if (t.status==='checking') statusBadge='<span class="role-badge active">冲突检查中</span>';
+    else                      statusBadge='<span class="role-badge active">处理中</span>';
 
-    // 标题行右侧状态标签
-    let statusBadge = '';
-    if (failed) {
-      statusBadge = '<span class="role-badge fail">处理失败</span>';
-    } else if (done && t.conflictCount) {
-      statusBadge = '<span class="role-badge warn">' + t.conflictCount + ' 项待裁决</span>';
-    } else if (done) {
-      statusBadge = '<span class="role-badge done">' + t.pageCount + ' 页已生效</span>';
-    } else if (checking) {
-      statusBadge = '<span class="role-badge active">冲突检查中</span>';
-    } else {
-      statusBadge = '<span class="role-badge active">处理中</span>';
-    }
-
-    // 进度条节点
-    // 冲突检查节点：done时有冲突 → 标橙；failed时cur===2 → 标红
-    const track = STEPS.map((label, i) => {
-      const isDone   = done ? i <= cur : (!failed && i < cur);
-      const isActive = !failed && !done && i === cur;
-      const isFail   = failed && i === cur;
-      // 冲突检查节点（i===2）完成且有冲突 → 橙色提示
-      const isConflict = i === 2 && done && t.conflictCount > 0;
-
-      let dotCls = isDone ? (isConflict ? 'conflict' : 'done') : isActive ? 'active' : isFail ? 'fail' : '';
-      let lblCls = (isDone || isActive) ? 'hi' : isFail ? 'hi fail-lbl' : '';
-      if (isConflict) lblCls = 'hi conflict-lbl';
-
-      return (
-        '<div class="prog-step">' +
-          '<div class="prog-dot ' + dotCls + '"></div>' +
-          '<div class="prog-step-label ' + lblCls.trim() + '">' + label + '</div>' +
-        '</div>' +
-        (i < STEPS.length - 1 ? '<div class="prog-line' + (isDone && !isConflict ? ' done' : '') + '"></div>' : '')
-      );
+    const track=STEPS.map((label,i)=>{
+      const isDone = done ? i<=cur : (!failed&&i<cur);
+      const isAct  = !failed&&!done&&i===cur;
+      const isFail = failed&&i===cur;
+      const isConf = i===2&&done&&t.conflictCount>0;
+      let dc = isDone?(isConf?'conflict':'done'):isAct?'active':isFail?'fail':'';
+      let lc = (isDone||isAct)?'hi':isFail?'fail-lbl':isConf?'conf-lbl':'';
+      return '<div class="prog-step"><div class="prog-dot '+dc+'"></div>'+
+             '<div class="prog-step-label '+lc+'">'+label+'</div></div>'+
+             (i<STEPS.length-1?'<div class="prog-line'+(isDone&&!isConf?' done':'')+'"></div>':'');
     }).join('');
 
-    // 冲突检查提示文案
-    const conflictNote = (done && t.conflictCount)
-      ? '<div class="conflict-note">发现 ' + t.conflictCount + ' 处内容冲突，已转入「待处理」等待你裁决</div>' : '';
+    const note = (done&&t.conflictCount)
+      ? '<div class="conflict-note">发现 '+t.conflictCount+' 处内容冲突，已进入「待处理」等待裁决</div>' : '';
+    const failBlock = failed&&t.failReason
+      ? '<div class="fail-reason">⚠ '+t.failReason+'</div>' : '';
 
-    // 失败原因
-    const failBlock = failed && t.failReason
-      ? '<div class="fail-reason">⚠ ' + t.failReason + '</div>' : '';
-
-    const titleSuffix = failed
-      ? ' <span class="tiny-tag" style="background:#fff5f5;color:#b50707;margin-left:4px">失败</span>' : '';
-
-    return '<div class="progress-card">' +
-      '<div class="progress-head">' +
-        '<div class="progress-title">' + t.sourceTitle + titleSuffix + '</div>' +
-        statusBadge +
-      '</div>' +
-      '<div class="prog-track">' + track + '</div>' +
-      conflictNote + failBlock +
+    return '<div class="progress-card">'+
+      '<div class="progress-head">'+
+        '<div class="progress-title">'+t.sourceTitle+(failed?' <span class="tiny-tag" style="background:#fff5f5;color:#b50707">失败</span>':'')+'</div>'+
+        statusBadge+
+      '</div>'+
+      '<div class="prog-track">'+track+'</div>'+
+      note+failBlock+
     '</div>';
   }).join('');
 }
 
+/* 知识管理 */
 function renderPagesPanel() {
   document.getElementById('panel-pages').innerHTML =
-    DATA.coeSpaces.map(s => `
+    DATA.coeSpaces.map(s=>`
       <div class="space-card">
         <div class="space-icon">📂</div>
         <div class="space-main">
           <div class="space-title">${s.domain} · ${s.label}</div>
           <div class="space-meta">${s.pagesCount} 个知识页 · 空间 ${s.key}</div>
         </div>
-        <button class="toft-button toft-button--ghost" onclick="alert('打开空间详情：${s.key}')">查看</button>
+        <button class="toft-button toft-button--ghost" onclick="alert('查看空间：${s.key}')">查看</button>
       </div>`).join('') +
     `<div class="list-head">
       <div class="list-head-label">全部知识页</div>
-      <button class="toft-button toft-button--ghost" onclick="alert('在后台查看完整列表')">在后台查看</button>
+      <button class="toft-button toft-button--ghost" onclick="alert('在后台查看')">在后台查看</button>
     </div>` +
-    DATA.managedPages.map(p => `
+    DATA.managedPages.map(p=>`
       <div class="page-row">
         <div class="page-title-wrap">
           <div class="page-title">${p.title}
-            ${p.status === 'live'
-              ? '<span class="tiny-tag tiny-tag--success">已生效</span>'
-              : '<span class="tiny-tag tiny-tag--warn">待审核</span>'}
+            ${p.status==='live'
+              ?'<span class="tiny-tag tiny-tag--success">已生效</span>'
+              :'<span class="tiny-tag tiny-tag--warn">待审核</span>'}
           </div>
           <div class="page-sub">${p.subdomain} · 来源 ${p.source}</div>
         </div>
@@ -721,13 +667,15 @@ function renderPagesPanel() {
       </div>`).join('');
 }
 
-/* ═════════ init ═════════ */
+/* ════════════════════════════════
+   Init
+════════════════════════════════ */
 renderRolePills();
 resizeCanvas();
 renderTodoPanel();
 renderProgressPanel();
 renderPagesPanel();
-updateBadges();
+updateBadge();
 window.addEventListener('resize', resizeCanvas);
 </script>
 </body>
