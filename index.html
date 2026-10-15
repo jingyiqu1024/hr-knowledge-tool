@@ -476,7 +476,7 @@ function drawGraph() {
       const sx = n.x + n.r + 7, sy = n.y - n.r - 7;
       const on = S.hoveredFavBtn === n.id;
       const isFav = S.favs.has(n.id);
-      ctx.beginPath(); ctx.arc(sx, sy, 7, 0, Math.PI * 2);
+      ctx.beginPath(); ctx.arc(sx, sy, 9, 0, Math.PI * 2);
       ctx.fillStyle = (on || isFav) ? '#e9a33a' : '#fff';
       ctx.fill();
       ctx.strokeStyle = 'rgba(31,35,41,.14)'; ctx.lineWidth = 1; ctx.stroke();
@@ -489,7 +489,7 @@ function drawGraph() {
 }
 
 /* ── 命中检测 ── */
-function favBtnPos(n) { return { x: n.x + n.r + 7, y: n.y - n.r - 7, r: 7 }; }
+function favBtnPos(n) { return { x: n.x + n.r + 8, y: n.y - n.r - 8, r: 9 }; }
 
 function hitTest(clientX, clientY) {
   const rect = canvas.getBoundingClientRect();
@@ -502,12 +502,12 @@ function hitTest(clientX, clientY) {
     if (n.kind !== 'page') continue;
     const fb = favBtnPos(n);
     const dx = mx - fb.x, dy = my - fb.y;
-    if (dx * dx + dy * dy <= (fb.r + 4) * (fb.r + 4)) return { node: n, fav: true };
+    if (dx * dx + dy * dy <= (fb.r + 6) * (fb.r + 6)) return { node: n, fav: true };
   }
   for (let i = S.nodes.length - 1; i >= 0; i--) {
     const n = S.nodes[i], dx = mx - n.x, dy = my - n.y;
     // 对 page 节点用更大的感应半径（覆盖右上角星标区域）
-    const hitR = n.kind === 'page' ? n.r + 18 : n.r + 6;
+    const hitR = n.kind === 'page' ? n.r + 28 : n.r + 6;
     if (dx * dx + dy * dy <= hitR * hitR) return { node: n, fav: false };
   }
   return null;
@@ -661,7 +661,7 @@ function renderTodoCard(item) {
   const tagStyle=`background:${meta.color}1a;color:${meta.color}`;
 
   if (done) {
-    const txt={new:'已用新版',old:'已保留旧的',pass:'已通过上线',redo:'已退回重新加工'}[done];
+    const txt={new:'已用新版',old:'已保留旧版',pass:'已通过上线',redo:'已退回重新加工'}[done];
     return `<div class="todo-card done">
       <div class="todo-head">
         <span class="tiny-tag" style="${tagStyle}">${meta.label}</span>
@@ -686,7 +686,7 @@ function renderTodoCard(item) {
   const btns=item.kind==='quality'
     ? `<button class="toft-button toft-button--ghost" onclick="resolve('${item.id}','redo')">重新加工</button>
        <button class="toft-button toft-button--primary" onclick="resolve('${item.id}','pass')">通过</button>`
-    : `<button class="toft-button toft-button--ghost" onclick="resolve('${item.id}','old')">${item.kind==='conflict'?'保留旧的':'暂不更新'}</button>
+    : `<button class="toft-button toft-button--ghost" onclick="resolve('${item.id}','old')">${item.kind==='conflict'?'保留旧版':'暂不更新'}</button>
        <button class="toft-button toft-button--primary" onclick="resolve('${item.id}','new')">用新版</button>`;
 
   return `<div class="todo-card">
