@@ -496,15 +496,19 @@ function hitTest(clientX, clientY) {
   const mx = (clientX - rect.left - S.pan.x) / S.zoom;
   const my = (clientY - rect.top  - S.pan.y) / S.zoom;
 
-  const hov = S.nodes.find(n => n.id === S.hovered);
-  if (hov) {
-    const fb = favBtnPos(hov);
+  // 先扫描所有 page 节点的星标区域（不依赖 S.hovered）
+  for (let i = S.nodes.length - 1; i >= 0; i--) {
+    const n = S.nodes[i];
+    if (n.kind !== 'page') continue;
+    const fb = favBtnPos(n);
     const dx = mx - fb.x, dy = my - fb.y;
-    if (dx * dx + dy * dy <= (fb.r + 3) * (fb.r + 3)) return { node: hov, fav: true };
+    if (dx * dx + dy * dy <= (fb.r + 4) * (fb.r + 4)) return { node: n, fav: true };
   }
   for (let i = S.nodes.length - 1; i >= 0; i--) {
     const n = S.nodes[i], dx = mx - n.x, dy = my - n.y;
-    if (dx * dx + dy * dy <= (n.r + 6) * (n.r + 6)) return { node: n, fav: false };
+    // 对 page 节点用更大的感应半径（覆盖右上角星标区域）
+    const hitR = n.kind === 'page' ? n.r + 18 : n.r + 6;
+    if (dx * dx + dy * dy <= hitR * hitR) return { node: n, fav: false };
   }
   return null;
 }
@@ -548,7 +552,7 @@ function toggleFav(id) {
   S.favs.has(id) ? S.favs.delete(id) : S.favs.add(id);
   localStorage.setItem('hr-kc-favs', JSON.stringify([...S.favs]));
   drawGraph();
-  if (S.showFavs) renderFavPanel();
+  renderFavPanel();   // 无论面板开不开都刷新，打开时内容已经是最新的
 }
 
 function toggleFavView() {
@@ -560,9 +564,21 @@ function toggleFavView() {
   if (S.showFavs) renderFavPanel();
 }
 
+function allPagesAllRoles() {
+  const out = [];
+  Object.keys(DATA.graph).forEach(role => {
+    (DATA.graph[role]||{domains:[]}).domains.forEach(d =>
+      d.children.forEach(s => s.pages.forEach(p =>
+        out.push({...p, domain:d.label, sub:s.label, role}))));
+  });
+  // 去重（同一页可能在多角色下出现相同 id）
+  const seen = new Set();
+  return out.filter(p => { if (seen.has(p.id)) return false; seen.add(p.id); return true; });
+}
+
 function renderFavPanel() {
   const panel = document.getElementById('favPanel');
-  const pages = allPages().filter(p=>S.favs.has(p.id));
+  const pages = allPagesAllRoles().filter(p=>S.favs.has(p.id));
   if (!pages.length) {
     panel.innerHTML = '<div class="fav-empty"><span style="font-size:22px">☆</span><span>还没有收藏</span><span style="font-size:11px">点击节点旁的 ★ 可收藏常用知识</span></div>';
     return;
