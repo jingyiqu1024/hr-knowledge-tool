@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>HR 工作台 · 知识库工具 Demo</title>
+<style>
+/* 
+ * HR Workbench UI Foundation 
+ * Derived from creative-desk-fe/src/styles/tokens/
+ */
+
+:root {
+  /* Foundations */
+  --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  
+  /* Palette & Semantic Colors (creative-desk-fe tokens) */
+  --color-brand-primary: #0c63fa;
+  --color-brand-hover: #337eff;
+  --color-brand-active: #0050db;
+  --color-brand-soft: #edf4ff;
+  --color-brand-border: #a5c6fe;
+  
+  --color-text-primary: #1f2329;
+  --color-text-secondary: #5c6066;
+  --color-text-tertiary: #95999e;
+  --color-text-quaternary: #c4c7cc;
+  --color-text-link: #0c63fa;
+  --color-text-success: #018550;
+  --color-text-warning: #944b01;
+  --color-text-danger: #b50707;
+  
+  --color-surface-page: #f5f7fa;
+  --color-surface-primary: #ffffff;
+  --color-surface-secondary: #f5f7fa;
+  --color-surface-hover: rgba(61, 86, 128, 0.06);
+  --color-surface-active: rgba(61, 86, 128, 0.08);
+  
+  --color-border-default: #ebedf0;
+  --color-border-subtle: #f0f2f5;
+  --color-border-strong: #c4c7cc;
+  
+  --color-success: #06bf75;
+  --color-success-soft: #e8faf3;
+  --color-warning: #fc860f;
+  --color-warning-soft: #fff1e5;
+  --color-danger: #fc3232;
+  --color-danger-soft: #fff5f5;
+  
+  --shadow-card: 0 8px 24px #2307b417, 0 1px 2px rgba(24, 24, 27, 0.03);
+  --shadow-float: 0 6px 14px 0 rgba(31, 35, 41, 0.12);
+  
+  --radius-s: 4px;
+  --radius-m: 6px;
+  --radius-l: 8px;
+  --radius-xl: 12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-family-base);
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Workbench Shell ── */
+.workbench-shell {
+  position: relative;
+  min-height: 100vh;
+  background: 
+    radial-gradient(ellipse 42% 28% at -4% 8%, rgba(107, 92, 255, 0.21), transparent 72%),
+    radial-gradient(ellipse 38% 27% at 104% 9%, rgba(46, 172, 255, 0.21), transparent 72%),
+    radial-gradient(ellipse 32% 22% at 54% 13%, rgba(156, 105, 255, 0.13), transparent 74%),
+    linear-gradient(180deg, #f2f6fc 0%, #f2f6fc 100%);
+  display: flex;
+  flex-direction: column;
+}
+
+.workbench-topbar {
+  height: 62px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.workbench-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.workbench-brand img { width: 28px; height: 28px; }
+
+.workbench-main {
+  flex: 1;
+  padding: 24px 88px 48px;
+  max-width: 1680px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.workbench-head {
+  margin-bottom: 24px;
+}
+
+.workbench-head h1 {
+  font-size: 30px;
+  font-weight: 500;
+  color: #0c0d0e;
+}
+
+.workbench-head p {
+  color: var(--color-text-tertiary);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+/* ── Grid Canvas ── */
+.workbench-canvas {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px;
+}
+
+/* ── HomeToolCard (The Glass Frame) ── */
+.tool-card {
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid #ffffff;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: box-shadow 0.16s ease, transform 0.16s ease;
+}
+
+.tool-card:hover {
+  box-shadow: 0 8px 24px #2307b417, 0 1px 2px #18181b08;
+}
+
+.tool-card__header {
+  padding: 16px 16px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 30px;
+}
+
+.tool-card__title {
+  font-size: 18px;
+  font-family: 'Source Han Serif CN', serif;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.tool-card__body {
+  flex: 1;
+  padding: 0 16px 16px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Shared UI Components ── */
+.toft-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 32px;
+  padding: 0 15px;
+  border-radius: var(--radius-m);
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+  background: #fff;
+  color: var(--color-text-primary);
+}
+
+.toft-button--primary {
+  background: var(--color-brand-primary);
+  color: #fff;
+  border-color: var(--color-brand-primary);
+}
+
+.toft-button--primary:hover {
+  background: var(--color-brand-hover);
+}
+
+.toft-button--ghost {
+  background: transparent;
+  border-color: var(--color-border-default);
+}
+
+.toft-button--ghost:hover {
+  background: var(--color-surface-hover);
+  border-color: var(--color-border-strong);
+}
+
+.toft-tabs {
+  display: flex;
+  gap: 24px;
+  border-bottom: 1px solid var(--color-border-default);
+  margin-bottom: 16px;
+}
+
+.toft-tab {
+  padding: 8px 0;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  position: relative;
+}
+
+.toft-tab.active {
+  color: var(--color-brand-primary);
+  border-bottom-color: var(--color-brand-primary);
+  font-weight: 500;
+}
+
+.toft-badge {
+  display: inline-flex;
+  padding: 0 6px;
+  height: 18px;
+  align-items: center;
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--color-border-strong);
+  color: #fff;
+}
+
+.toft-badge--danger { background: var(--color-danger); }
+
+/* ── Tool specific UI ── */
+.tool-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-m);
+  padding: 4px 12px;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.tool-search input {
+  border: none;
+  background: transparent;
+  outline: none;
+  flex: 1;
+  font-size: 13px;
+}
+
+.tool-role-pills {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tool-role-pill {
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  background: var(--color-surface-secondary);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.tool-role-pill.active {
+  background: var(--color-brand-soft);
+  color: var(--color-brand-primary);
+}
+
+</style>
+<style>
+  .tool-card--knowledge { grid-column: span 7; min-height: 580px; }
+  .tool-card--manage    { grid-column: span 5; min-height: 580px; }
+
+  /* ── 消费卡片 ── */
+  .k-full { display: flex; flex-direction: column; min-height: 490px; }
+  .k-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .graph-area { position: relative; flex: 1; min-height: 400px; border-radius: 10px;
+                background: rgba(255,255,255,.5); border: 1px solid rgba(255,255,255,.9); overflow: hidden; }
+  #graphCanvas { width: 100%; height: 100%; display: block; }
+  .graph-hint { position: absolute; left: 12px; bottom: 10px;
+                color: var(--color-text-quaternary); font-size: 11px; pointer-events: none; }
+
+  .search-floating { position: absolute; inset: 0; background: rgba(250,252,255,.97);
+                     overflow: auto; display: none; padding: 10px; }
+  .search-floating.show { display: block; }
+  .search-item { padding: 9px 11px; border-radius: 8px; background: #fff;
+                 border: 1px solid var(--color-border-default); margin-bottom: 7px; cursor: pointer; }
+  .search-item:hover { border-color: var(--color-brand-border); }
+  .search-item__title { font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .search-item__meta { font-size: 11px; color: var(--color-text-tertiary); margin-top: 3px; }
+
+  /* ── 视图切换按钮 ── */
+  .view-toggle { display:flex; gap:2px; background:#f0f2f5; border-radius:7px; padding:2px; }
+  .view-btn { border:none; background:transparent; border-radius:5px; padding:3px 10px;
+              font-size:12px; color:var(--color-text-secondary); cursor:pointer; transition:all .15s; }
+  .view-btn.active { background:#fff; color:var(--color-text-primary); font-weight:500;
+                     box-shadow:0 1px 3px rgba(0,0,0,.1); }
+
+  /* ── 列表视图 ── */
+  #listView { display:none; flex:1; flex-direction:column; min-height:400px; border-radius:10px;
+              background:rgba(255,255,255,.55); border:1px solid var(--color-border-default); overflow-y:auto; }
+  #listView.lv-active { display:flex; flex-direction:column; }
+  .list-domains { display:flex; flex-direction:column; gap:4px; padding:10px; }
+  .list-domain-group { border-radius:8px; overflow:hidden; border:1px solid var(--color-border-default); }
+  .list-domain-hdr { display:flex; align-items:center; gap:6px; padding:8px 12px;
+                     background:rgba(255,255,255,.85); cursor:pointer; user-select:none;
+                     font-size:13px; font-weight:600; color:var(--color-text-primary); }
+  .list-domain-hdr:hover { background:var(--color-brand-soft); }
+  .list-domain-hdr .chevron { font-size:9px; color:var(--color-text-tertiary);
+                               transition:transform .2s; margin-left:auto; }
+  .list-domain-hdr.open .chevron { transform:rotate(90deg); }
+  .list-subdomain-wrap { padding:0 8px 8px; background:rgba(249,250,252,.9); }
+  .list-sub-hdr { font-size:10px; font-weight:700; color:var(--color-text-tertiary);
+                  padding:6px 4px 3px; letter-spacing:.04em; }
+  .list-page-row { display:flex; align-items:center; gap:8px; padding:5px 8px;
+                   border-radius:6px; cursor:pointer; transition:background .12s; }
+  .list-page-row:hover { background:var(--color-brand-soft); }
+  .list-page-dot { width:6px; height:6px; border-radius:50%; background:#0c63fa; flex-shrink:0; }
+  .list-page-name { font-size:12px; color:var(--color-text-primary); flex:1; min-width:0;
+                    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .list-page-date { font-size:10px; color:var(--color-text-tertiary); flex-shrink:0; }
+  .list-page-fav  { font-size:11px; color:#e9a33a; flex-shrink:0; }
+
+  /* ── 下钻视图（两栏）── */
+  #drillView { display:none; flex:1; min-height:400px; border-radius:10px; overflow:hidden;
+               border:1px solid var(--color-border-default); background:#fff; }
+  #drillView.dv-active { display:flex; }
+  .drill-nav { width:196px; flex-shrink:0; border-right:1px solid var(--color-border-default);
+               display:flex; flex-direction:column; background:#f9fafb; overflow-y:auto; }
+  .drill-back { display:flex; align-items:center; gap:6px; padding:10px 12px;
+                font-size:12px; color:var(--color-brand-primary); cursor:pointer; font-weight:500;
+                border-bottom:1px solid var(--color-border-default); }
+  .drill-back:hover { background:var(--color-brand-soft); }
+  .drill-nav-domain { padding:8px 12px 3px; font-size:10px; font-weight:700;
+                      color:var(--color-text-tertiary); letter-spacing:.06em; }
+  .drill-nav-item { display:flex; align-items:center; gap:7px; padding:6px 14px;
+                    cursor:pointer; font-size:12px; color:var(--color-text-secondary);
+                    border-left:2px solid transparent; transition:all .12s; }
+  .drill-nav-item:hover { background:var(--color-brand-soft); color:var(--color-text-primary); }
+  .drill-nav-item.active { background:var(--color-brand-soft); color:var(--color-brand-primary);
+                           border-left-color:var(--color-brand-primary); font-weight:500; }
+  .drill-content { flex:1; overflow-y:auto; padding:20px 24px; }
+  .drill-title { font-size:16px; font-weight:600; color:var(--color-text-primary); margin-bottom:6px; }
+  .drill-meta { display:flex; gap:14px; margin-bottom:14px; flex-wrap:wrap; }
+  .drill-meta-item { font-size:11px; color:var(--color-text-tertiary); }
+  .drill-meta-item b { color:var(--color-text-secondary); font-weight:500; }
+  .drill-tag { display:inline-block; font-size:11px; padding:2px 8px; border-radius:10px;
+               background:var(--color-brand-soft); color:var(--color-brand-primary);
+               font-weight:500; margin-bottom:12px; }
+  .drill-body { font-size:13px; color:var(--color-text-secondary); line-height:1.75; }
+  .drill-src-link { display:inline-flex; align-items:center; gap:5px; margin-top:16px;
+                    font-size:12px; color:var(--color-brand-primary); cursor:pointer;
+                    padding:6px 12px; border-radius:6px; border:1px solid var(--color-brand-border);
+                    background:var(--color-brand-soft); }
+  .drill-src-link:hover { background:#deeaff; }
+  .drill-fav-btn { float:right; background:none; border:1px solid var(--color-border-default);
+                   border-radius:6px; padding:4px 10px; font-size:12px; cursor:pointer;
+                   color:var(--color-text-secondary); transition:all .15s; }
+  .drill-fav-btn.active { border-color:#e9a33a; color:#e9a33a; background:#fff9f0; }
+  .drill-empty { display:flex; align-items:center; justify-content:center; height:200px;
+                 color:var(--color-text-tertiary); font-size:13px; }
+
+  .fav-panel { position: absolute; inset: 0; background: rgba(250,252,255,.97);
+               overflow: auto; display: none; flex-direction: column; padding: 12px; gap: 8px; }
+  .fav-panel.show { display: flex; }
+  .fav-item { display: flex; align-items: center; gap: 10px; padding: 9px 11px; border-radius: 8px;
+              background: #fff; border: 1px solid var(--color-border-default); cursor: pointer; }
+  .fav-item:hover { border-color: var(--color-brand-border); background: var(--color-brand-soft); }
+  .fav-item-info { flex: 1; min-width: 0; }
+  .fav-item-title { font-size: 13px; font-weight: 500; }
+  .fav-item-meta  { font-size: 11px; color: var(--color-text-tertiary); margin-top: 2px; }
+  .fav-unfav { border: none; background: transparent; color: #ccc; cursor: pointer;
+               font-size: 16px; padding: 0; line-height: 1; }
+  .fav-unfav:hover { color: #fc860f; }
+  .fav-empty { flex: 1; display: flex; flex-direction: column; align-items: center;
+               justify-content: center; color: var(--color-text-tertiary); font-size: 13px;
+               gap: 6px; text-align: center; }
+
+  .fav-btn { height: 28px; padding: 0 10px; font-size: 12px; border-radius: 6px;
+             border: 1px solid var(--color-border-default); background: rgba(255,255,255,.7);
+             color: var(--color-text-secondary); cursor: pointer; display: flex; align-items: center; gap: 4px; }
+  .fav-btn.active { color: #fc860f; border-color: #fcd09b; background: #fff8f0; }
+
+  .tiny-tag { display: inline-flex; align-items: center; height: 18px; padding: 0 6px;
+              border-radius: 9px; font-size: 11px; white-space: nowrap; }
+  .tiny-tag--neutral { background: #f2f5f7; color: #5c6066; }
+  .tiny-tag--warn    { background: #fff1e5; color: #944b01; }
+  .tiny-tag--success { background: #e8faf3; color: #018550; }
+
+  /* ── 生产卡片 ── */
+  .manage-shell { display: flex; flex-direction: column; min-height: 490px; }
+  .tab-panel { display: none; flex-direction: column; gap: 10px; }
+  .tab-panel.active { display: flex; }
+
+  .group-label { font-size: 11px; color: var(--color-text-tertiary); padding: 2px 2px 0;
+                 display: flex; align-items: center; gap: 6px; }
+  .group-label .dot { width: 6px; height: 6px; border-radius: 50%; flex: none; }
+
+  .todo-card { border-radius: 10px; background: rgba(255,255,255,.7);
+               border: 1px solid rgba(31,35,41,.08); padding: 12px; }
+  .todo-card.done { opacity: .55; }
+  .todo-head { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+  .todo-title { flex: 1; font-size: 13px; font-weight: 500; overflow: hidden;
+                text-overflow: ellipsis; white-space: nowrap; }
+  .todo-time  { font-size: 11px; color: var(--color-text-tertiary); flex: none; }
+  .todo-body  { font-size: 12px; line-height: 1.65; }
+
+  .conflict-hint { font-size: 12px; font-weight: 600; color: #944b01; background: #fff1e5;
+                   border-radius: 6px; padding: 5px 8px; margin-bottom: 8px;
+                   display: flex; align-items: center; gap: 5px; }
+  .claim { display: flex; gap: 8px; padding: 3px 0; }
+  .claim-key     { flex: none; width: 24px; font-size: 11px; font-weight: 600; }
+  .claim-key.new { color: #1851b3; }
+  .claim-key.old { color: #944b01; }
+  .claim-txt     { color: var(--color-text-secondary); }
+
+  .diff-line { display: flex; gap: 6px; font-size: 12px; line-height: 1.65; }
+  .diff-sign { flex: none; width: 10px; font-weight: 700; }
+  .diff-line.add    .diff-sign { color: #018550; }
+  .diff-line.add    .diff-txt  { color: #018550; }
+  .diff-line.remove .diff-sign { color: #b50707; }
+  .diff-line.remove .diff-txt  { color: #95999e; text-decoration: line-through; }
+  .diff-line.same   .diff-sign { color: transparent; }
+  .diff-line.same   .diff-txt  { color: var(--color-text-tertiary); }
+
+  .todo-footer { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+  .todo-footer .toft-button { height: 28px; padding: 0 12px; font-size: 12px; }
+  .todo-footer .link-btn { margin-left: auto; }
+  .resolve-note { font-size: 12px; color: var(--color-text-secondary);
+                  display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .link-btn { border: none; background: none; color: var(--color-text-link);
+              font-size: 12px; cursor: pointer; padding: 0; }
+
+  .progress-card { border-radius: 10px; background: rgba(255,255,255,.7);
+                   border: 1px solid rgba(31,35,41,.08); padding: 11px 12px; }
+  .progress-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .progress-title { font-size: 13px; font-weight: 500; flex: 1; min-width: 0;
+                    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .prog-track { display: flex; align-items: flex-start; }
+  .prog-step  { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: none; }
+  .prog-step.is-submitted { min-width: 42px; }
+  .prog-dot   { width: 8px; height: 8px; border-radius: 50%; background: #e1e3e6; }
+  .prog-dot.done     { background: #06bf75; }
+  .prog-dot.active   { background: #0c63fa; box-shadow: 0 0 0 3px rgba(12,99,250,.15); }
+  .prog-dot.conflict { background: #fc860f; box-shadow: 0 0 0 3px rgba(252,134,15,.18); }
+  .prog-dot.fail     { background: #fc3232; box-shadow: 0 0 0 3px rgba(252,50,50,.15); }
+  .prog-line { flex: 1; height: 1px; background: #e1e3e6; margin-top: 4px; min-width: 20px; }
+  .prog-line.done { background: #06bf75; }
+  .prog-step-label { font-size: 10px; color: var(--color-text-quaternary); white-space: nowrap; }
+  .prog-step-label.hi       { color: var(--color-text-secondary); }
+  .prog-step-label.fail-lbl { color: #b50707; }
+  .prog-step-label.conf-lbl { color: #944b01; }
+
+  .conflict-note { font-size: 11px; color: #944b01; background: #fff1e5;
+                   border-radius: 6px; padding: 6px 9px; margin-top: 8px; }
+  .fail-reason   { font-size: 11px; color: #b50707; background: #fff5f5;
+                   border-radius: 6px; padding: 6px 9px; margin-top: 8px; }
+
+  .role-badge { font-size: 11px; border-radius: 9px; padding: 2px 8px; white-space: nowrap; flex: none; }
+  .role-badge.done   { background: #e8faf3; color: #018550; }
+  .role-badge.active { background: #edf4ff; color: #1851b3; }
+  .role-badge.warn   { background: #fff1e5; color: #944b01; }
+  .role-badge.fail   { background: #fff5f5; color: #b50707; }
+
+  .space-card { border-radius: 10px; background: rgba(255,255,255,.7);
+                border: 1px solid rgba(31,35,41,.08); padding: 10px 12px;
+                display: flex; align-items: center; gap: 10px; }
+  .space-icon { width: 34px; height: 34px; border-radius: 10px; background: var(--color-brand-soft);
+                color: var(--color-brand-primary); display: grid; place-items: center;
+                font-size: 15px; flex: none; }
+  .space-main  { flex: 1; min-width: 0; }
+  .space-title { font-size: 13px; font-weight: 500; }
+  .space-meta  { font-size: 11px; color: var(--color-text-tertiary); margin-top: 2px; }
+
+  .list-head { display: flex; justify-content: space-between; align-items: center; padding: 2px 0; }
+  .list-head-label { font-size: 13px; font-weight: 600; }
+
+  .page-row { border-radius: 10px; background: rgba(255,255,255,.7);
+              border: 1px solid rgba(31,35,41,.08); padding: 10px 12px;
+              display: flex; align-items: center; gap: 10px; }
+  .page-title-wrap { flex: 1; min-width: 0; }
+  .page-title { font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+  .page-sub   { font-size: 11px; color: var(--color-text-tertiary); margin-top: 2px; }
+  .page-date  { font-size: 11px; color: var(--color-text-tertiary); flex: none; }
+  .page-actions { display: flex; gap: 6px; flex: none; }
+  .page-actions .toft-button { height: 26px; padding: 0 10px; font-size: 12px; }
+</style>
+</head>
+<body>
+<script>
+/**
+ * HR 工作台知识库工具 · Demo 数据
+ */
+window.DATA = {
+  roles: [
+    { key: 'hrbp',      label: 'HRBP' },
+    { key: 'manager',   label: '管理者' },
+    { key: 'all',       label: '全员' },
+    { key: 'recruiter', label: '招聘' },
+  ],
+
+  graph: {
+    hrbp: {
+      domains: [
+        {
+          key: 'd-recruit', label: '招聘与配置',
+          children: [
+            { key: 's-rc-interview', label: '面试与录用', pages: [
+              { id: 'p-1', title: '面试评估表填写规范', summary: '面试官需在面试结束后 24 小时内完成评估表，评价维度含专业能力、潜力、文化匹配三项，每项须给出具体事例支撑。', tag: '流程规范', updatedAt: '2026-09-28', source: '招聘管理制度 V4.2', hasConflict: false, isNew: false },
+              { id: 'p-2', title: 'offer 审批权限矩阵', summary: 'P6 及以下由部门负责人审批；P7 需 HRBP 复核；P8 及以上需 HRD 终审。', tag: '权限规则', updatedAt: '2026-10-08', source: 'offer 审批指引', hasConflict: true, isNew: false },
+            ]},
+            { key: 's-rc-channel', label: '渠道与人才库', pages: [
+              { id: 'p-3', title: '内推奖励发放标准', summary: '成功入职满 3 个月后发放，T 类岗位 8000 元、非 T 类 5000 元。', tag: '激励政策', updatedAt: '2026-09-12', source: '内推激励办法', hasConflict: false, isNew: false },
+            ]},
+          ],
+        },
+        {
+          key: 'd-perf', label: '绩效管理',
+          children: [
+            { key: 's-perf-cycle', label: '绩效周期', pages: [
+              { id: 'p-4', title: '绩效校准会操作指引', summary: '校准会由部门负责人主持，HRBP 列席；需提前完成自评与上级评分，会上只讨论 C/D 及争议项。', tag: '流程规范', updatedAt: '2026-10-02', source: '绩效管理办法 2026', hasConflict: false, isNew: true },
+              { id: 'p-5', title: '绩效申诉处理时限', summary: '员工收到结果后 5 个工作日内可发起申诉，HRBP 需在 3 个工作日内给出初步答复。', tag: '时效规则', updatedAt: '2026-08-20', source: '绩效申诉流程', hasConflict: false, isNew: false },
+            ]},
+            { key: 's-perf-low', label: '低绩效管理', pages: [
+              { id: 'p-6', title: 'PIP 改进计划启动条件', summary: '连续两个周期绩效为 C 或单周期为 D 时启动，周期 60 天。', tag: '管理制度', updatedAt: '2026-09-05', source: '绩效改进计划 SOP', hasConflict: false, isNew: false },
+            ]},
+          ],
+        },
+        {
+          key: 'd-cb', label: '薪酬福利',
+          children: [
+            { key: 's-cb-bonus', label: '奖金与激励', pages: [
+              { id: 'p-7', title: '年终奖发放规则', summary: '按在职月份折算，发放日仍在职方可获得；绩效 A 系数 1.5、B 系数 1.2、C 系数 0.8。', tag: '薪酬政策', updatedAt: '2026-10-10', source: '奖金管理政策 2026', hasConflict: false, isNew: true },
+            ]},
+            { key: 's-cb-welfare', label: '福利与假期', pages: [
+              { id: 'p-8', title: '年假折算与结转规则', summary: '入职满 1 年享 5 天，每满 1 年 +1 天，上限 15 天；当年未休完可结转至次年 3 月底。', tag: '假期政策', updatedAt: '2026-07-18', source: '考勤与假期管理规定', hasConflict: false, isNew: false },
+            ]},
+          ],
+        },
+        {
+          key: 'd-er', label: '员工关系',
+          children: [
+            { key: 's-er-case', label: '员工沟通', pages: [
+              { id: 'p-9', title: '员工沟通会开展方式', summary: '新人入职 30 天内必做一次，转正前一次；重点了解工作适配度与团队融合情况。', tag: '沟通机制', updatedAt: '2026-06-30', source: '员工关系工作手册', hasConflict: false, isNew: false },
+            ]},
+            { key: 's-er-exit', label: '离职管理', pages: [
+              { id: 'p-10', title: '离职面谈执行要求', summary: '主动离职员工需在提出后 3 个工作日内完成面谈，记录留存至 HR 系统。', tag: '流程规范', updatedAt: '2026-09-22', source: '离职管理流程', hasConflict: true, isNew: false },
+            ]},
+          ],
+        },
+        {
+          key: 'd-od', label: '组织发展',
+          children: [
+            { key: 's-od-talent', label: '人才盘点', pages: [
+              { id: 'p-11', title: '九宫格盘点标准', summary: '以绩效与潜力双轴划分，重点识别「高潜」与「待观察」两类人群，结果仅限直属上级与 HRBP 可见。', tag: '人才方法', updatedAt: '2026-09-16', source: '人才盘点操作指引', hasConflict: false, isNew: false },
+            ]},
+          ],
+        },
+      ],
+    },
+
+    manager: {
+      domains: [
+        {
+          key: 'd-team', label: '团队管理',
+          children: [
+            { key: 's-team-perf', label: '绩效与反馈', pages: [
+              { id: 'm-1', title: '如何做好绩效面谈', summary: '面谈前准备事实清单，面谈中先听后说，聚焦行为不评价人格；结束时共同确认改进动作。', tag: '管理方法', updatedAt: '2026-10-01', source: '管理者行动手册', hasConflict: false, isNew: true },
+              { id: 'm-2', title: '绩效评分分布参考', summary: '团队内建议 A 不超过 20%、C 与 D 合计不低于 5%，具体以校准会结果为准。', tag: '管理规则', updatedAt: '2026-09-25', source: '绩效管理办法 2026', hasConflict: false, isNew: false },
+            ]},
+            { key: 's-team-onboard', label: '新人融入', pages: [
+              { id: 'm-3', title: '新人首月带教清单', summary: '第 1 周熟悉环境与工具，第 2 周完成小任务闭环，第 4 周独立负责一个完整模块。', tag: '带教方法', updatedAt: '2026-08-14', source: '新人融入指引', hasConflict: false, isNew: false },
+            ]},
+          ],
+        },
+        {
+          key: 'd-hiring', label: '招聘与用人',
+          children: [
+            { key: 's-hiring-need', label: '需求与编制', pages: [
+              { id: 'm-4', title: '用人需求提报规范', summary: '需明确岗位职责、必备能力、到岗时间与薪酬区间，HC 未经审批不得启动面试。', tag: '流程规范', updatedAt: '2026-09-30', source: '招聘管理制度 V4.2', hasConflict: false, isNew: false },
+            ]},
+          ],
+        },
+        {
+          key: 'd-motivate', label: '激励与保留',
+          children: [
+            { key: 's-motivate-recog', label: '认可与激励', pages: [
+              { id: 'm-5', title: '团队激励可用手段清单', summary: '含即时认可、项目奖金、发展机会、公开表扬四类，预算内可自主决定。', tag: '激励工具', updatedAt: '2026-07-28', source: '管理者激励指引', hasConflict: false, isNew: false },
+            ]},
+            { key: 's-motivate-risk', label: '离职风险', pages: [
+              { id: 'm-6', title: '骨干离职预警信号', summary: '连续请假、主动减少发声、拒绝新任务等信号需及时与 HRBP 沟通。', tag: '风险提示', updatedAt: '2026-10-06', source: '人才保留实践', hasConflict: false, isNew: true },
+            ]},
+          ],
+        },
+      ],
+    },
+
+    all: {
+      domains: [
+        {
+          key: 'd-life', label: '入职与日常',
+          children: [
+            { key: 's-life-onboard', label: '新人入职', pages: [
+              { id: 'a-1', title: '入职第一天要做什么', summary: '领取工卡与设备、加入团队群、完成账号开通、阅读团队协作规范。', tag: '新人指南', updatedAt: '2026-09-01', source: '员工入职手册', hasConflict: false, isNew: false },
+            ]},
+            { key: 's-life-tool', label: '办公工具', pages: [
+              { id: 'a-2', title: '常用办公系统入口', summary: '考勤、报销、IT 报修、知识库四类系统的统一入口与常见问题。', tag: '工具指引', updatedAt: '2026-08-25', source: 'IT 服务指南', hasConflict: false, isNew: false },
+            ]},
+          ],
+        },
+        {
+          key: 'd-benefit', label: '薪酬与福利',
+          children: [
+            { key: 's-benefit-salary', label: '发薪与个税', pages: [
+              { id: 'a-3', title: '每月发薪时间与查询方式', summary: '每月 15 日发放上月工资，遇节假日提前；工资单在薪酬系统可查。', tag: '薪酬政策', updatedAt: '2026-09-20', source: '薪酬发放说明', hasConflict: false, isNew: false },
+            ]},
+            { key: 's-benefit-leave', label: '假期申请', pages: [
+              { id: 'a-4', title: '各类假期申请流程', summary: '年假提前 3 个工作日申请，病假需附证明；婚假、产假等按当地规定执行。', tag: '假期政策', updatedAt: '2026-07-10', source: '考勤与假期管理规定', hasConflict: false, isNew: false },
+            ]},
+          ],
+        },
+        {
+          key: 'd-grow', label: '成长与发展',
+          children: [
+            { key: 's-grow-learn', label: '学习资源', pages: [
+              { id: 'a-5', title: '内部学习平台使用指南', summary: '课程分类、学习路径推荐、线下培训报名入口。', tag: '学习资源', updatedAt: '2026-10-12', source: '学习平台使用说明', hasConflict: false, isNew: true },
+            ]},
+            { key: 's-grow-promo', label: '晋升发展', pages: [
+              { id: 'a-6', title: '晋升评审的标准与节奏', summary: '每年两次评审窗口，需提前准备代表项目与影响力说明。', tag: '晋升政策', updatedAt: '2026-09-08', source: '职级晋升管理办法', hasConflict: false, isNew: false },
+            ]},
+          ],
+        },
+      ],
+    },
+
+    recruiter: {
+      domains: [
+        {
+          key: 'd-rc-src', label: '渠道与寻源',
+          children: [
+            { key: 's-rc-src-channel', label: '渠道运营', pages: [
+              { id: 'r-1', title: '各招聘渠道效果对比口径', summary: '以「简历-面试-入职」三级转化率衡量，按月统计，高于均值 20% 的渠道加大投入。', tag: '数据分析', updatedAt: '2026-09-18', source: '招聘渠道运营手册', hasConflict: false, isNew: false },
+            ]},
+            { key: 's-rc-src-pool', label: '人才库', pages: [
+              { id: 'r-2', title: '人才库标签体系说明', summary: '技能、行业、职级、活跃度四类标签，用于精准寻访与激活。', tag: '工具指引', updatedAt: '2026-10-09', source: '人才库运营规范', hasConflict: false, isNew: true },
+            ]},
+          ],
+        },
+        {
+          key: 'd-rc-proc', label: '招聘流程',
+          children: [
+            { key: 's-rc-proc-sched', label: '面试安排', pages: [
+              { id: 'r-3', title: '面试排期与取消规则', summary: '面试官需在收到邀约后 4 小时内确认；取消需提前 12 小时通知候选人。', tag: '时效规则', updatedAt: '2026-09-14', source: '面试组织规范', hasConflict: false, isNew: false },
+            ]},
+            { key: 's-rc-proc-offer', label: 'offer 与背调', pages: [
+              { id: 'r-4', title: '背景调查执行标准', summary: 'T 类及以上必做，需候选人书面授权；调查项含工作经历、离职原因、绩效表现。', tag: '流程规范', updatedAt: '2026-08-30', source: '背景调查指引', hasConflict: true, isNew: false },
+            ]},
+          ],
+        },
+        {
+          key: 'd-rc-brand', label: '雇主品牌',
+          children: [
+            { key: 's-rc-brand-content', label: '内容运营', pages: [
+              { id: 'r-5', title: '招聘内容发布审核流程', summary: '对外内容需经品牌与法务双重审核，敏感岗位描述不得公开薪资区间。', tag: '合规要求', updatedAt: '2026-09-26', source: '雇主品牌运营规范', hasConflict: false, isNew: false },
+            ]},
+          ],
+        },
+      ],
+    },
+  },
+
+  // ── COE 待处理队列 ──────────────────────────────────────
+  // kind: conflict | proposal | quality
+  pendingItems: [
+    // 冲突裁决：两份文档矛盾，必须人工裁定，否则卡住入库
+    {
+      id: 'c-1', kind: 'conflict', severity: 'hard',
+      role: 'HRBP', pageTitle: 'offer 审批权限矩阵',
+      uploadedAt: '今天 10:24',
+      newText: 'P7 由 HRBP 复核后即可发出，无需 HRD 参与。',
+      newSource: 'offer 审批指引（本次上传）',
+      oldText: 'P7 需 HRD 终审后方可发出 offer。',
+      oldSource: 'offer 审批指引 2026-04 版（库里已有）',
+      hint: 'P7 审批层级硬性矛盾',
+    },
+    {
+      id: 'c-2', kind: 'conflict', severity: 'soft',
+      role: 'HRBP', pageTitle: '离职面谈执行要求',
+      uploadedAt: '今天 09:12',
+      newText: '主动离职员工需在提出后 3 个工作日内完成面谈。',
+      newSource: '离职管理流程（本次上传）',
+      oldText: '离职面谈应在员工提出后 5 个工作日内完成。',
+      oldSource: '员工关系工作手册 2026-03 版（库里已有）',
+      hint: '时限口径不同（3 天 vs 5 天）',
+    },
+
+    // 变更候选：存量文档更新，AI 抽出新版，等人工确认
+    {
+      id: 'p-1', kind: 'proposal',
+      role: 'HRBP', pageTitle: '年终奖发放规则',
+      uploadedAt: '今天 11:05', sourceTitle: '奖金管理政策 2026',
+      diff: [
+        { type: 'same',   text: '按在职月份折算，发放日仍在职方可获得。' },
+        { type: 'remove', text: '绩效 A 系数 1.5、B 系数 1.2、C 系数 0.8。' },
+        { type: 'add',    text: '绩效 A 系数 1.6、B 系数 1.2、C 系数 0.7、D 系数 0.5。' },
+      ],
+      hint: 'A 系数 1.5→1.6，新增 D 系数 0.5',
+    },
+    {
+      id: 'p-2', kind: 'proposal',
+      role: '招聘', pageTitle: '面试排期与取消规则',
+      uploadedAt: '昨天 17:40', sourceTitle: '面试组织规范',
+      diff: [
+        { type: 'same',   text: '面试官需在收到邀约后 4 小时内确认。' },
+        { type: 'remove', text: '取消需提前 12 小时通知候选人。' },
+        { type: 'add',    text: '取消需提前 24 小时通知候选人，少于 24 小时需填写说明。' },
+      ],
+      hint: '取消提前通知 12h→24h',
+    },
+
+    // 质量复核：AI 信心不足，需人工确认后才放行
+    {
+      id: 'q-1', kind: 'quality',
+      role: '全员', pageTitle: '各类假期申请流程',
+      uploadedAt: '今天 12:10', sourceTitle: '考勤与假期管理规定',
+      confidence: 0.61, pagesCount: 3,
+      reason: '原文含大量表格，「产假/陪产假天数」一栏未能完整抽取，生成页面存在信息缺失。',
+      triggerLabel: 'AI 信心低',
+    },
+    {
+      id: 'q-2', kind: 'quality',
+      role: '管理者', pageTitle: '如何做好绩效面谈',
+      uploadedAt: '昨天 15:22', sourceTitle: '管理者行动手册',
+      confidence: 0.74, pagesCount: 5,
+      reason: '「面谈话术示例」与原文语义偏差较大，建议人工确认后再放行。',
+      triggerLabel: 'AI 信心低',
+    },
+    {
+      id: 'q-3', kind: 'quality',
+      role: 'HRBP', pageTitle: '九宫格盘点标准',
+      uploadedAt: '昨天 10:05', sourceTitle: '人才盘点操作指引',
+      confidence: 0.88, pagesCount: 2,
+      reason: '「结果可见范围」一句被拆到了另一个页面，建议合并后再发布。',
+      triggerLabel: '结构问题',
+    },
+  ],
+
+  tasks: [
+    /* 文档级进度
+     * status: submitted | generating | checking | done | failed
+     * failedAt: 失败发生在哪个阶段（用于步骤条定位）
+     */
+    { sourceTitle: '《奖金管理政策 2026》',
+      uploadedAt: '今天 11:05', status: 'checking' },
+
+    { sourceTitle: '《offer 审批指引》',
+      uploadedAt: '今天 10:24', status: 'done',
+      pageCount: 3, conflictCount: 1 },
+
+    { sourceTitle: '《考勤与假期管理规定》',
+      uploadedAt: '今天 08:55', status: 'done',
+      pageCount: 6, conflictCount: 0 },
+
+    { sourceTitle: '《学习平台使用说明》',
+      uploadedAt: '今天 09:40', status: 'generating' },
+
+    { sourceTitle: '《绩效管理操作手册》',
+      uploadedAt: '昨天 16:22', status: 'failed',
+      failedAt: 'checking',
+      failReason: '冲突检查服务异常，请稍后重试。如持续失败请联系管理员。' },
+
+    { sourceTitle: '《薪酬体系设计规范2026》',
+      uploadedAt: '昨天 17:08', status: 'failed',
+      failedAt: 'generating',
+      failReason: '文档被加密保护，无法读取内容。请去除密码保护后重新上传。' },
+  ],
+
+  coeSpaces: [
+    { key: 'payroll',    domain: 'CB',   label: 'Payroll 知识库',  pagesCount: 42, description: '从 HR（all）全员视角回答薪酬福利（Payroll）领域的政策、规则与口径。' },
+    { key: 'leadership', domain: 'TD',   label: '领导力知识库',    pagesCount: 22, description: '回答公司级管理者培养项目与领导力测评知识，覆盖公司管理者通用能力。' },
+    { key: 'service',    domain: 'SSC',  label: '服务交付知识库',  pagesCount: 37, description: '员工事务办理规则与操作，覆盖入职与用工类型、劳动合同等服务交付知识。' },
+    { key: 'recruiter',  domain: '招聘',  label: '招聘知识库',      pagesCount: 31, description: '渠道寻源、面试组织、offer 与背调、雇主品牌运营等招聘全流程所需的规范与工具指引。' },
+    { key: 'ssc',        domain: 'SSC',  label: 'SSC 知识库',      pagesCount: 19, description: '外包用工规则与流程，覆盖工时制、普通外包、用工模式选用等相关知识。' },
+  ],
+
+  managedPages: [
+    { title: '年终奖发放规则',     status: 'review', subdomain: '薪酬福利 › 奖金', source: '奖金管理政策 2026',   updatedAt: '2026-10-10' },
+    { title: '面试排期与取消规则', status: 'review', subdomain: '招聘流程 › 面试', source: '面试组织规范',       updatedAt: '2026-09-14' },
+    { title: '绩效校准会操作指引', status: 'live',   subdomain: '绩效管理 › 周期', source: '绩效管理办法 2026', updatedAt: '2026-10-02' },
+    { title: '年假折算与结转规则', status: 'live',   subdomain: '薪酬福利 › 假期', source: '考勤与假期管理规定', updatedAt: '2026-07-18' },
+    { title: '离职面谈执行要求',   status: 'live',   subdomain: '员工关系 › 离职', source: '离职管理流程',       updatedAt: '2026-09-22' },
+    { title: '九宫格盘点标准',     status: 'live',   subdomain: '组织发展 › 人才', source: '人才盘点操作指引',   updatedAt: '2026-09-16' },
+  ],
+};
+
+</script>
+<div class="workbench-shell">
+  <div class="workbench-topbar">
+    <div class="workbench-brand">
+      <div style="width:28px;height:28px;border-radius:8px;background:#fff;display:grid;place-items:center;box-shadow:0 2px 8px rgba(31,35,41,0.12)">✨</div>
+      <strong>HR工作台</strong>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center">
+      <button class="toft-button toft-button--ghost">模板</button>
+      <button class="toft-button toft-button--ghost">我的</button>
+    </div>
+  </div>
+
+  <div class="workbench-main">
+    <div class="workbench-head"><h1>景怡，下午好</h1></div>
+
+    <div class="workbench-canvas">
+
+      <!-- ══ 知识库（消费）══ -->
+      <section class="tool-card tool-card--knowledge">
+        <div class="tool-card__header">
+          <div class="tool-card__title">知识库</div>
+        </div>
+        <div class="tool-card__body">
+          <div class="k-full">
+            <div class="tool-search" style="margin-bottom:8px">
+              <span style="color:var(--color-text-tertiary);font-size:13px">⌕</span>
+              <input id="searchInput" placeholder="搜索知识、政策、流程…">
+            </div>
+            <div class="k-toolbar">
+              <div class="tool-role-pills" id="rolePills"></div>
+              <div style="display:flex;gap:8px;align-items:center">
+                <div class="view-toggle">
+                  <button class="view-btn active" id="vbGraph" onclick="switchView('graph')">图谱</button>
+                  <button class="view-btn"        id="vbList"  onclick="switchView('list')">列表</button>
+                </div>
+                <button class="fav-btn" id="favBtn" onclick="toggleFavView()">
+                  <span>★</span> 我的收藏
+                </button>
+              </div>
+            </div>
+            <!-- 图谱视图 -->
+            <div class="graph-area" id="graphAreaWrap">
+              <canvas id="graphCanvas"></canvas>
+              <div class="search-floating" id="searchFloating"></div>
+              <div class="fav-panel" id="favPanel"></div>
+              <div class="graph-hint" id="graphHint">点击节点跳转 · 点击 ★ 收藏 · 滚轮缩放</div>
+            </div>
+            <!-- 列表视图 -->
+            <div id="listView"></div>
+            <!-- 下钻视图（两栏） -->
+            <div id="drillView">
+              <div class="drill-nav" id="drillNav"></div>
+              <div class="drill-content" id="drillContent">
+                <div class="drill-empty">← 从左侧选择一个知识页</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ 知识管理（生产）══ -->
+      <section class="tool-card tool-card--manage">
+        <div class="tool-card__header">
+          <div class="tool-card__title">知识管理</div>
+          <button class="toft-button toft-button--ghost"
+                  onclick="window.open('https://docs.corp.kuaishou.com/cloud','_blank')">上传文档</button>
+        </div>
+        <div class="tool-card__body">
+          <div class="manage-shell">
+            <div class="toft-tabs">
+              <div class="toft-tab active" data-tab="pages"    onclick="switchTab('pages',this)">知识管理</div>
+              <div class="toft-tab"        data-tab="todo"     onclick="switchTab('todo',this)">
+                待处理 <span class="toft-badge toft-badge--danger" id="pendingBadge" style="margin-left:3px">0</span>
+              </div>
+              <div class="toft-tab"        data-tab="progress" onclick="switchTab('progress',this)">进度跟踪</div>
+            </div>
+            <div class="tab-panel active" id="panel-pages"></div>
+            <div class="tab-panel"        id="panel-todo"></div>
+            <div class="tab-panel"        id="panel-progress"></div>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /canvas -->
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════
+   状态
+════════════════════════════════ */
+const KB_BASE = 'https://knowledge-cloud.staging.kuaishou.com/?app=hr#/ssc-service-delivery/kb';
+
+const S = {
+  role: 'hrbp',
+  favs: new Set(JSON.parse(localStorage.getItem('hr-kc-favs') || '[]')),
+  zoom: 1,
+  pan: { x: 0, y: 0 },
+  nodes: [], edges: [],
+  hovered: null,
+  dragging: false,
+  dragMoved: false,
+  showFavs: false,
+  resolved: {},
+};
+
+const ROLE_LABEL = { hrbp:'HRBP', manager:'管理者', all:'全员', recruiter:'招聘' };
+const KIND_META = {
+  conflict: { label:'冲突 · 需裁决', color:'#fc3232' },
+  proposal: { label:'变更 · 待确认', color:'#fc860f' },
+  quality:  { label:'质量 · 待复核', color:'#7938fc' },
+};
+
+/* ════════════════════════════════
+   消费卡片 — 图谱
+════════════════════════════════ */
+const canvas = document.getElementById('graphCanvas');
+const ctx    = canvas.getContext('2d');
+const FONT   = "-apple-system,'PingFang SC',sans-serif";
+
+/* 配色：只用两色 + 灰，干净 */
+const C = {
+  center:     { fill:'#1f2329', text:'#fff' },
+  domain:     { fill:'#1f2329', stroke:'#1f2329', text:'#fff' },
+  sub:        { fill:'#fff', stroke:'#c4c7cc', text:'#5c6066' },
+  page:       { fill:'#0c63fa', text:'#fff' },
+  pageFav:    { fill:'#fc860f' },
+  pageConfl:  { fill:'#fc3232' },
+  edge:       'rgba(31,35,41,.10)',
+};
+
+/* ══ 视图切换 ══ */
+let S_view = 'graph';
+
+function switchView(v) {
+  S_view = v;
+  document.getElementById('vbGraph').classList.toggle('active', v==='graph');
+  document.getElementById('vbList').classList.toggle('active', v==='list'||v==='drill');
+  document.getElementById('graphAreaWrap').style.display = (v==='graph') ? '' : 'none';
+  document.getElementById('graphHint').style.display     = (v==='graph') ? '' : 'none';
+  // 角色 pills 只在图谱视图显示
+  document.getElementById('rolePills').style.visibility = (v==='graph') ? '' : 'hidden';
+  const lv = document.getElementById('listView');
+  const dv = document.getElementById('drillView');
+  lv.classList.toggle('lv-active', v==='list');
+  dv.classList.toggle('dv-active', v==='drill');
+  if (v==='list') renderListView();
+  document.getElementById('favPanel').classList.remove('show');
+}
+
+/* ── 列表视图：合并所有角色的知识，按领域展示 ── */
+function _getAllDomains() {
+  // 合并所有角色 graph，以 domain.key 去重，page 以 id 去重
+  const domainMap = new Map(); // key -> {label, subMap}
+  Object.values(DATA.graph||{}).forEach(roleGraph => {
+    (roleGraph.domains||[]).forEach(d => {
+      if (!domainMap.has(d.key)) domainMap.set(d.key, {key:d.key, label:d.label, subMap:new Map()});
+      const dm = domainMap.get(d.key);
+      (d.children||[]).forEach(sub => {
+        if (!dm.subMap.has(sub.key)) dm.subMap.set(sub.key, {key:sub.key, label:sub.label, pageMap:new Map()});
+        const sm = dm.subMap.get(sub.key);
+        (sub.pages||[]).forEach(p => { if (!sm.pageMap.has(p.id)) sm.pageMap.set(p.id, p); });
+      });
+    });
+  });
+  // 还原成数组
+  return [...domainMap.values()].map(d => ({
+    ...d,
+    children: [...d.subMap.values()].map(sub => ({
+      ...sub,
+      pages: [...sub.pageMap.values()]
+    }))
+  }));
+}
+
+function renderListView() {
+  const domains = _getAllDomains();
+  const el = document.getElementById('listView');
+  let html = '<div class="list-domains">';
+  domains.forEach(d => {
+    html += `<div class="list-domain-group">
+      <div class="list-domain-hdr" onclick="toggleListDomain(this)">
+        ${d.label}<span class="chevron">▶</span>
+      </div>
+      <div class="list-subdomain-wrap" style="display:none">`;
+    (d.children||[]).forEach(sub => {
+      html += `<div class="list-sub-hdr">${sub.label}</div>`;
+      (sub.pages||[]).forEach(page => {
+        const fav = S.favs.has(page.id);
+        html += `<div class="list-page-row" onclick="openDrill('${page.id}')">
+          <div class="list-page-dot"></div>
+          <div class="list-page-name">${page.title}</div>
+          <div class="list-page-date">${page.updatedAt||''}</div>
+          ${fav ? '<div class="list-page-fav">★</div>' : ''}
+        </div>`;
+      });
+    });
+    html += '</div></div>';
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function toggleListDomain(hdr) {
+  const opening = !hdr.classList.contains('open');
+  hdr.classList.toggle('open', opening);
+  hdr.nextElementSibling.style.display = opening ? '' : 'none';
+}
+
+/* ── 下钻：找 page（全量搜索，不依赖 S.role）── */
+function _findPage(id) {
+  for (const d of _getAllDomains())
+    for (const sub of (d.children||[]))
+      for (const p of (sub.pages||[]))
+        if (p.id===id) return {page:p, domain:d, sub};
+  return null;
+}
+
+/* ── 下钻：打开 ── */
+function openDrill(pageId) {
+  switchView('drill');
+  _buildDrillNav(pageId);
+  _renderDrillPage(pageId);
+}
+
+function _buildDrillNav(activeId) {
+  const domains = _getAllDomains();
+  const nav = document.getElementById('drillNav');
+  let html = '<div class="drill-back" onclick="switchView(\'list\')">← 返回列表</div>';
+  domains.forEach(d => {
+    html += `<div class="drill-nav-domain">${d.label}</div>`;
+    (d.children||[]).forEach(sub => {
+      (sub.pages||[]).forEach(p => {
+        html += `<div class="drill-nav-item${p.id===activeId?' active':''}"
+          onclick="drillNavClick('${p.id}',this)">
+          <span style="color:#0c63fa;font-size:9px">●</span>${p.title}
+        </div>`;
+      });
+    });
+  });
+  nav.innerHTML = html;
+}
+
+function drillNavClick(id, el) {
+  document.querySelectorAll('.drill-nav-item').forEach(n=>n.classList.remove('active'));
+  el.classList.add('active');
+  _renderDrillPage(id);
+}
+
+function _renderDrillPage(id) {
+  const found = _findPage(id);
+  if (!found) return;
+  const {page} = found;
+  const isFav = S.favs.has(id);
+  document.getElementById('drillContent').innerHTML = `
+    <button class="drill-fav-btn ${isFav?'active':''}"
+            onclick="toggleFavDrill('${id}')">${isFav?'★ 已收藏':'☆ 收藏'}</button>
+    <div class="drill-title">${page.title}</div>
+    <div class="drill-meta">
+      <div class="drill-meta-item">来源文档 <b>${page.source||'—'}</b></div>
+      <div class="drill-meta-item">最后更新 <b>${page.updatedAt||'—'}</b></div>
+      ${page.tag?`<div class="drill-meta-item">标签 <b>${page.tag}</b></div>`:''}
+    </div>
+    ${page.tag?`<div class="drill-tag">${page.tag}</div>`:''}
+    <div class="drill-body">${page.summary||'暂无内容摘要。'}</div>
+    ${page.source?`<div class="drill-src-link"
+        onclick="window.open(KB_BASE+'/'+\`${id}\`,'_blank')">
+        ↗ 查看原文（${page.source}）</div>`:''}
+  `;
+}
+
+function toggleFavDrill(id) {
+  toggleFav(id);
+  _renderDrillPage(id);
+  // 同步列表视图收藏标记
+  renderListView();
+}
+
+function renderRolePills() {
+  document.getElementById('rolePills').innerHTML = DATA.roles.map(r =>
+    `<div class="tool-role-pill ${S.role===r.key?'active':''}" onclick="selectRole('${r.key}')">${r.label}</div>`
+  ).join('');
+}
+
+function selectRole(role) {
+  S.role = role; S.zoom = 1; S.pan = {x:0,y:0};
+  S.showFavs = false;
+  document.getElementById('favPanel').classList.remove('show');
+  document.getElementById('favBtn').classList.remove('active');
+  renderRolePills(); resizeCanvas();
+}
+
+function resizeCanvas() {
+  const rect = document.getElementById('graphAreaWrap').getBoundingClientRect();
+  canvas.width = rect.width; canvas.height = rect.height;
+  buildGraph(); drawGraph();
+}
+
+/* ── 力导向布局 + 绘制 ── */
+let DPR = window.devicePixelRatio || 1;
+let CW = 0, CH = 0;   // CSS 尺寸
+
+function resizeCanvas() {
+  const rect = document.getElementById('graphAreaWrap').getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+  DPR = window.devicePixelRatio || 1;
+  CW = rect.width; CH = rect.height;
+  canvas.width  = Math.round(CW * DPR);
+  canvas.height = Math.round(CH * DPR);
+  canvas.style.width  = CW + 'px';
+  canvas.style.height = CH + 'px';
+  buildGraph(); drawGraph();
+}
+
+/*
+ * 力导向：斥力 + 弹簧 + 向心力
+ * 迭代完成后把坐标归一化到画布内，外层 pan/zoom 从 1 / (0,0) 开始
+ */
+function buildGraph() {
+  const cx = CW / 2, cy = CH / 2;
+  const domains = (DATA.graph[S.role] || { domains: [] }).domains;
+  const nodes = [], links = [];
+
+  const push = (n) => { nodes.push(n); return n; };
+
+  const center = push({ id:'center', kind:'center', label:'HR域',
+                        x:cx, y:cy, vx:0, vy:0, r:16 });
+
+  domains.forEach((dom, di) => {
+    const a = Math.PI * 2 * di / domains.length - Math.PI / 2;
+    const dn = push({ id:dom.key, kind:'domain', label:dom.label,
+                      x:cx + Math.cos(a)*70, y:cy + Math.sin(a)*70, vx:0, vy:0, r:11 });
+    links.push({ s:center, t:dn });
+
+    const subs = dom.children || [];
+    subs.forEach((sub, si) => {
+      const sa = a + (si - (subs.length - 1) / 2) * 0.42;
+      const sn = push({ id:sub.key, kind:'sub', label:sub.label,
+                        x:dn.x + Math.cos(sa)*52, y:dn.y + Math.sin(sa)*52, vx:0, vy:0, r:7 });
+      links.push({ s:dn, t:sn });
+
+      const pages = sub.pages || [];
+      pages.forEach((page, pi) => {
+        const pa = sa + (pi - (pages.length - 1) / 2) * 0.32;
+        const pn = push({ id:page.id, kind:'page', label:page.title, page,
+                          x:sn.x + Math.cos(pa)*40, y:sn.y + Math.sin(pa)*40, vx:0, vy:0, r:4.5 });
+        links.push({ s:sn, t:pn });
+      });
+    });
+  });
+
+  /* ── 迭代 ── */
+  const ITER = 420;
+  for (let it = 0; it < ITER; it++) {
+    const alpha = 1 - it / ITER;
+
+    /* 斥力：所有节点两两推开 */
+    for (let i = 0; i < nodes.length; i++) {
+      const a = nodes[i];
+      for (let j = i + 1; j < nodes.length; j++) {
+        const b = nodes[j];
+        let dx = b.x - a.x, dy = b.y - a.y;
+        let d2 = dx * dx + dy * dy;
+        if (d2 < 0.01) { dx = Math.random() - .5; dy = Math.random() - .5; d2 = .25; }
+        const d = Math.sqrt(d2);
+        const want = a.r + b.r + 16;
+        /* 只在过近时推开，避免整体被炸散 */
+        if (d < want) {
+          const f = (want - d) / d * 0.5 * alpha;
+          const fx = dx * f, fy = dy * f;
+          a.vx -= fx; a.vy -= fy; b.vx += fx; b.vy += fy;
+        }
+      }
+    }
+
+    /* 弹簧：连边保持合适距离 */
+    links.forEach(l => {
+      const a = l.s, b = l.t;
+      const dx = b.x - a.x, dy = b.y - a.y;
+      const d = Math.sqrt(dx * dx + dy * dy) || .01;
+      const target = a.r + b.r + (b.kind === 'page' ? 26 : 34);
+      const f = (d - target) * 0.035 * alpha;
+      const fx = dx / d * f, fy = dy / d * f;
+      a.vx += fx; a.vy += fy; b.vx -= fx; b.vy -= fy;
+    });
+
+    /* 向心 + 阻尼 */
+    nodes.forEach(n => {
+      n.vx += (cx - n.x) * 0.008 * alpha;
+      n.vy += (cy - n.y) * 0.008 * alpha;
+      n.x += n.vx; n.y += n.vy;
+      n.vx *= 0.5; n.vy *= 0.5;
+    });
+  }
+
+  /* ── 归一化到画布，留出边距给标签 ── */
+  const PAD = 26;
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  nodes.forEach(n => {
+    minX = Math.min(minX, n.x); maxX = Math.max(maxX, n.x);
+    minY = Math.min(minY, n.y); maxY = Math.max(maxY, n.y);
+  });
+  const spanX = (maxX - minX) || 1, spanY = (maxY - minY) || 1;
+  const availW = Math.max(CW - PAD * 2, 60), availH = Math.max(CH - PAD * 2, 60);
+  const k = Math.min(availW / spanX, availH / spanY);
+  const offX = PAD + (availW - spanX * k) / 2;
+  const offY = PAD + (availH - spanY * k) / 2;
+  nodes.forEach(n => {
+    n.x = offX + (n.x - minX) * k;
+    n.y = offY + (n.y - minY) * k;
+    n.r = Math.max(n.r * Math.min(k, 1.15), n.kind === 'page' ? 3.5 : 5);
+  });
+
+  S.nodes = nodes; S.edges = links;
+  S.zoom = 1; S.pan = { x: 0, y: 0 };
+}
+
+/* ── 配色：蓝为主，金为强调，红为告警 ── */
+const COL = {
+  center:  '#e9a33a',
+  domain:  '#e9a33a',
+  sub:     '#7aa7e0',
+  page:    '#7aa7e0',
+  pageFav: '#e9a33a',
+  pageBad: '#e07070',
+  label:   '#8a9099',
+  labelHi: '#1f2329',
+  edge:    'rgba(140,160,190,.42)',
+};
+
+function nodeColor(n) {
+  if (n.kind === 'center' || n.kind === 'domain') return COL.center;
+  if (n.kind === 'sub') return COL.sub;
+  if (S.favs.has(n.id)) return COL.pageFav;
+  if (n.page && n.page.hasConflict) return COL.pageBad;
+  return COL.page;
+}
+
+function drawGraph() {
+  if (!CW) return;
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.clearRect(0, 0, CW, CH);
+  ctx.translate(S.pan.x, S.pan.y);
+  ctx.scale(S.zoom, S.zoom);
+
+  const map = Object.fromEntries(S.nodes.map(n => [n.id, n]));
+
+  /* 连线 */
+  ctx.strokeStyle = COL.edge;
+  ctx.lineWidth = 0.6;
+  S.edges.forEach(e => {
+    const a = e.s, b = e.t; if (!a || !b) return;
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+  });
+
+  /* 节点 */
+  S.nodes.forEach(n => {
+    const hov = S.hovered === n.id;
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, n.r + (hov ? 2 : 0), 0, Math.PI * 2);
+    ctx.fillStyle = nodeColor(n);
+    ctx.fill();
+
+    /* 收藏星标（canvas内绘制，hover或已收藏时显示） */
+    if (n.kind === 'page') {
+      const isFav = S.favs.has(n.id);
+      if (hov || isFav) {
+        const sr = Math.max(5, n.r * 0.85);
+        const sx = n.x + n.r * 0.8 + sr;
+        const sy = n.y - n.r * 0.8 - sr;
+        n._favX = sx; n._favY = sy; n._favR = sr + 4;
+        ctx.beginPath(); ctx.arc(sx, sy, sr, 0, Math.PI * 2);
+        ctx.fillStyle = isFav ? '#e9a33a' : 'rgba(255,255,255,0.95)'; ctx.fill();
+        ctx.strokeStyle = isFav ? '#e9a33a' : 'rgba(31,35,41,0.2)';
+        ctx.lineWidth = 1; ctx.stroke();
+        ctx.fillStyle = isFav ? '#fff' : '#c0c4cc';
+        ctx.font = `${sr * 1.1}px ${FONT}`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('★', sx, sy + 0.5);
+      } else { n._favX = null; }
+    } else { n._favX = null; }
+
+    /* 标签 */
+    if (n.kind !== 'page' || n.r >= 4) {
+      ctx.fillStyle = hov ? COL.labelHi : COL.label;
+      ctx.font = (n.kind === 'center' ? '600 10px ' : n.kind === 'domain' ? '500 10px ' : '9px ') + FONT;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      const full = n.label || '';
+      const max = n.kind === 'page' ? 8 : 10;
+      const txt = full.length > max ? full.slice(0, max) + '…' : full;
+      const ty = hov ? n.y - n.r - 13 : n.y + n.r + 3;
+      /* 白底描边，让文字在密集区域也能读 */
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = 'rgba(255,255,255,.92)';
+      ctx.strokeText(txt, n.x, ty);
+      ctx.fillText(txt, n.x, ty);
+    }
+
+  });
+  ctx.restore();
+}
+
+/* ── 星标命中检测 ── */
+function hitFav(cx, cy) {
+  const rect = canvas.getBoundingClientRect();
+  const x = (cx - rect.left - S.pan.x) / S.zoom;
+  const y = (cy - rect.top  - S.pan.y) / S.zoom;
+  for (let i = S.nodes.length - 1; i >= 0; i--) {
+    const n = S.nodes[i];
+    if (!n._favX) continue;
+    const dx = x - n._favX, dy = y - n._favY;
+    if (dx*dx + dy*dy <= n._favR * n._favR) return n;
+  }
+  return null;
+}
+
+/* ── 命中检测 ── */
+
+
+function hitTest(clientX, clientY) {
+  const rect = canvas.getBoundingClientRect();
+  const mx = (clientX - rect.left - S.pan.x) / S.zoom;
+  const my = (clientY - rect.top  - S.pan.y) / S.zoom;
+
+  for (let i = S.nodes.length - 1; i >= 0; i--) {
+    const n = S.nodes[i], dx = mx - n.x, dy = my - n.y;
+    if (dx*dx + dy*dy <= (n.r+6)*(n.r+6)) return { node: n };
+  }
+  return null;
+}
+
+canvas.addEventListener('mousedown', e => {
+  S.dragMoved = false;
+  S.dragging = true;
+  canvas.style.cursor = 'grabbing';
+});
+window.addEventListener('mouseup', () => { S.dragging = false; });
+
+canvas.addEventListener('mousemove', e => {
+  if (S.dragging) {
+    if (Math.abs(e.movementX) > 1 || Math.abs(e.movementY) > 1) S.dragMoved = true;
+    S.pan.x += e.movementX; S.pan.y += e.movementY; drawGraph(); return;
+  }
+  const favN = hitFav(e.clientX, e.clientY);
+  const hit  = favN ? null : hitTest(e.clientX, e.clientY);
+  const ph   = S.hovered;
+  S.hovered  = favN ? favN.id : (hit ? hit.node.id : null);
+  canvas.style.cursor = (favN || hit) ? 'pointer' : 'grab';
+  if (S.hovered !== ph) drawGraph();
+});
+
+canvas.addEventListener('mouseleave', () => {
+  S.hovered = null; canvas.style.cursor = 'grab'; drawGraph();
+});
+
+canvas.addEventListener('click', e => {
+  if (S.dragMoved) return;
+  const favN = hitFav(e.clientX, e.clientY);
+  if (favN) { toggleFav(favN.id); return; }
+  const hit = hitTest(e.clientX, e.clientY);
+  if (!hit) return;
+  if (hit.node.kind === 'page') window.open(KB_BASE + '/' + hit.node.id, '_blank');
+});
+
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  const before = { x: (mx - S.pan.x) / S.zoom, y: (my - S.pan.y) / S.zoom };
+  S.zoom = Math.min(3, Math.max(.4, S.zoom * (e.deltaY < 0 ? 1.1 : .9)));
+  S.pan.x = mx - before.x * S.zoom;
+  S.pan.y = my - before.y * S.zoom;
+  drawGraph();
+}, { passive: false });
+
+/* 收藏 */
+function toggleFav(id) {
+  S.favs.has(id) ? S.favs.delete(id) : S.favs.add(id);
+  localStorage.setItem('hr-kc-favs', JSON.stringify([...S.favs]));
+  drawGraph();
+  renderFavPanel();
+}
+
+function toggleFavView() {
+  S.showFavs = !S.showFavs;
+  const panel = document.getElementById('favPanel');
+  const btn   = document.getElementById('favBtn');
+  panel.classList.toggle('show', S.showFavs);
+  btn.classList.toggle('active', S.showFavs);
+  if (S.showFavs) renderFavPanel();
+}
+
+function allPagesAllRoles() {
+  const out = [];
+  Object.keys(DATA.graph).forEach(role => {
+    (DATA.graph[role]||{domains:[]}).domains.forEach(d =>
+      d.children.forEach(s => s.pages.forEach(p =>
+        out.push({...p, domain:d.label, sub:s.label, role}))));
+  });
+  // 去重（同一页可能在多角色下出现相同 id）
+  const seen = new Set();
+  return out.filter(p => { if (seen.has(p.id)) return false; seen.add(p.id); return true; });
+}
+
+function renderFavPanel() {
+  const panel = document.getElementById('favPanel');
+  const pages = allPagesAllRoles().filter(p=>S.favs.has(p.id));
+  if (!pages.length) {
+    panel.innerHTML = '<div class="fav-empty"><span style="font-size:22px">☆</span><span>还没有收藏</span><span style="font-size:11px">点击节点旁的 ★ 可收藏常用知识</span></div>';
+    return;
+  }
+  panel.innerHTML = '<div style="font-size:13px;font-weight:600;padding:0 2px 4px">我的收藏 · '+pages.length+'</div>' +
+    pages.map(p=>`
+      <div class="fav-item" onclick="window.open('${KB_BASE}/${p.id}','_blank')">
+        <div class="fav-item-info">
+          <div class="fav-item-title">${p.title}</div>
+          <div class="fav-item-meta">${p.domain} · ${p.sub} · ${p.updatedAt}</div>
+        </div>
+        <button class="fav-unfav" title="取消收藏" onclick="event.stopPropagation();toggleFav('${p.id}')">★</button>
+      </div>`).join('');
+}
+
+/* 搜索 */
+function allPages() {
+  const out=[];
+  (DATA.graph[S.role]||{domains:[]}).domains.forEach(d=>
+    d.children.forEach(s=>s.pages.forEach(p=>out.push({...p,domain:d.label,sub:s.label}))));
+  return out;
+}
+
+document.getElementById('searchInput').addEventListener('input', e=>{
+  const q=e.target.value.trim().toLowerCase();
+  const box=document.getElementById('searchFloating');
+  if (!q) { box.classList.remove('show'); return; }
+  const hits=allPages().filter(p=>
+    p.title.toLowerCase().includes(q)||p.summary.toLowerCase().includes(q)||p.tag.toLowerCase().includes(q));
+  box.classList.add('show');
+  box.innerHTML = hits.length
+    ? hits.map(p=>`
+        <div class="search-item" onclick="window.open('${KB_BASE}/${p.id}','_blank')">
+          <div class="search-item__title">${p.title}
+            <span class="tiny-tag tiny-tag--neutral">${p.tag}</span>
+            ${p.hasConflict?'<span class="tiny-tag tiny-tag--warn">有冲突</span>':''}
+            ${p.isNew?'<span class="tiny-tag tiny-tag--success">已更新</span>':''}
+          </div>
+          <div class="search-item__meta">${p.domain} · ${p.sub} · ${p.updatedAt}</div>
+        </div>`).join('')
+    : '<div style="padding:40px 0;text-align:center;color:var(--color-text-tertiary)">没有找到相关知识</div>';
+});
+
+/* ════════════════════════════════
+   生产卡片
+════════════════════════════════ */
+function pendingCount() {
+  return DATA.pendingItems.filter(i=>!S.resolved[i.id]).length;
+}
+
+function updateBadge() {
+  const el=document.getElementById('pendingBadge');
+  if (el) el.textContent=pendingCount();
+}
+
+function switchTab(tab, el) {
+  document.querySelectorAll('.toft-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+tab).classList.add('active');
+}
+
+/* 待处理 */
+function renderTodoPanel() {
+  const el=document.getElementById('panel-todo');
+  const groups=['conflict','proposal','quality'];
+  const html=groups.map(kind=>{
+    const items=DATA.pendingItems.filter(i=>i.kind===kind);
+    if (!items.length) return '';
+    const meta=KIND_META[kind];
+    return `<div class="group-label"><span class="dot" style="background:${meta.color}"></span>${meta.label} · ${items.length}</div>`+
+           items.map(i=>renderTodoCard(i)).join('');
+  }).join('');
+  el.innerHTML = html || '<div style="padding:48px 0;text-align:center;color:var(--color-text-tertiary)">待处理已清空 ✅</div>';
+}
+
+function renderTodoCard(item) {
+  const done=S.resolved[item.id];
+  const meta=KIND_META[item.kind];
+  const tagStyle=`background:${meta.color}1a;color:${meta.color}`;
+
+  if (done) {
+    const txt={new:'已用新版',old:'已保留旧版',pass:'已通过上线',redo:'已退回重新加工'}[done];
+    return `<div class="todo-card done">
+      <div class="todo-head">
+        <span class="tiny-tag" style="${tagStyle}">${meta.label}</span>
+        <div class="todo-title">${item.pageTitle}</div>
+      </div>
+      <div class="resolve-note">✓ ${txt}<button class="link-btn" style="margin-left:auto" onclick="undoResolve('${item.id}')">撤销</button></div>
+    </div>`;
+  }
+
+  let body='';
+  if (item.kind==='conflict') {
+    body=`<div class="conflict-hint">⚡ ${item.hint}</div>
+      <div class="claim"><span class="claim-key new">新的</span><span class="claim-txt">${item.newText}</span></div>
+      <div class="claim"><span class="claim-key old">旧的</span><span class="claim-txt">${item.oldText}</span></div>`;
+  } else if (item.kind==='proposal') {
+    body=item.diff.map(d=>`<div class="diff-line ${d.type}"><span class="diff-sign">${d.type==='add'?'+':d.type==='remove'?'−':''}</span><span class="diff-txt">${d.text}</span></div>`).join('');
+  } else {
+    body=`<div style="color:var(--color-text-secondary)">${item.reason}</div>
+      <div style="font-size:11px;color:var(--color-text-tertiary);margin-top:3px">AI 信心 ${Math.round(item.confidence*100)}% · ${item.pagesCount} 个页面</div>`;
+  }
+
+  const btns=item.kind==='quality'
+    ? `<button class="toft-button toft-button--ghost" onclick="resolve('${item.id}','redo')">重新加工</button>
+       <button class="toft-button toft-button--primary" onclick="resolve('${item.id}','pass')">通过</button>`
+    : `<button class="toft-button toft-button--ghost" onclick="resolve('${item.id}','old')">${item.kind==='conflict'?'保留旧版':'暂不更新'}</button>
+       <button class="toft-button toft-button--primary" onclick="resolve('${item.id}','new')">用新版</button>`;
+
+  return `<div class="todo-card">
+    <div class="todo-head">
+      <span class="tiny-tag" style="${tagStyle}">${meta.label}</span>
+      <div class="todo-title">${item.pageTitle}</div>
+      <span class="todo-time">${item.uploadedAt}</span>
+    </div>
+    <div class="todo-body">${body}</div>
+    <div class="todo-footer" style="justify-content:flex-end">${btns}</div>
+  </div>`;
+}
+
+function resolve(id, choice) { S.resolved[id]=choice; updateBadge(); renderTodoPanel(); }
+function undoResolve(id)     { delete S.resolved[id]; updateBadge(); renderTodoPanel(); }
+
+/* 进度跟踪 */
+function renderProgressPanel() {
+  const STEPS    = ['已提交','生成知识','冲突检查','完成'];
+  const STEP_IDX = { submitted:0, generating:1, checking:2, done:3 };
+  document.getElementById('panel-progress').innerHTML = DATA.tasks.map(t=>{
+    const failed = t.status==='failed';
+    const done   = t.status==='done';
+    const cur    = failed ? (STEP_IDX[t.failedAt]??1) : (STEP_IDX[t.status]??0);
+
+    let statusBadge='';
+    if (failed)               statusBadge='<span class="role-badge fail">处理失败</span>';
+    else if (done&&t.conflictCount) statusBadge='<span class="role-badge warn">'+t.conflictCount+' 项待裁决</span>';
+    else if (done)            statusBadge='<span class="role-badge done">'+t.pageCount+' 页已生效</span>';
+    else if (t.status==='checking') statusBadge='<span class="role-badge active">冲突检查中</span>';
+    else                      statusBadge='<span class="role-badge active">处理中</span>';
+
+    const track=STEPS.map((label,i)=>{
+      const isDone = done ? i<=cur : (!failed&&i<cur);
+      const isAct  = !failed&&!done&&i===cur;
+      const isFail = failed&&i===cur;
+      const isConf = i===2&&done&&t.conflictCount>0;
+      let dc = isDone?(isConf?'conflict':'done'):isAct?'active':isFail?'fail':'';
+      let lc = (isDone||isAct)?'hi':isFail?'fail-lbl':isConf?'conf-lbl':'';
+      return '<div class="prog-step '+(i===0?'is-submitted':'')+'"><div class="prog-dot '+dc+'"></div>'+
+             '<div class="prog-step-label '+lc+'">'+label+'</div></div>'+
+             (i<STEPS.length-1?'<div class="prog-line'+(isDone&&!isConf?' done':'')+'"></div>':'');
+    }).join('');
+
+    const note = (done&&t.conflictCount)
+      ? '<div class="conflict-note">发现 '+t.conflictCount+' 处内容冲突，已进入「待处理」等待裁决</div>' : '';
+    const failBlock = failed&&t.failReason
+      ? '<div class="fail-reason">⚠ '+t.failReason+'</div>' : '';
+
+    return '<div class="progress-card">'+
+      '<div class="progress-head">'+
+        '<div class="progress-title" style="cursor:pointer;color:var(--color-brand-primary)" onclick="window.open(\'https://knowledge-cloud.staging.kuaishou.com/?app=hr#/ssc-service-delivery/tasks\',\'_blank\')">'+t.sourceTitle+(failed?' <span class="tiny-tag" style="background:#fff5f5;color:#b50707">失败</span>':'')+'</div>'+
+        statusBadge+
+      '</div>'+
+      '<div class="prog-track">'+track+'</div>'+
+      note+failBlock+
+    '</div>';
+  }).join('');
+}
+
+/* 知识管理 */
+function renderPagesPanel() {
+  document.getElementById('panel-pages').innerHTML =
+    DATA.coeSpaces.map(s=>`
+      <div class="space-card">
+        <div class="space-icon">📂</div>
+        <div class="space-main">
+          <div class="space-title">${s.label}</div>
+          <div class="space-meta">${s.pagesCount} 个知识页 · ${s.description}</div>
+        </div>
+        <button class="toft-button toft-button--ghost" onclick="alert('查看空间：${s.key}')">查看</button>
+      </div>`).join('');
+}
+
+/* ════════════════════════════════
+   Init
+════════════════════════════════ */
+// SVG overlay 事件委托（绑一次，不随 innerHTML 刷新而失效）
+renderRolePills();
+resizeCanvas();
+renderTodoPanel();
+renderProgressPanel();
+renderPagesPanel();
+updateBadge();
+window.addEventListener('resize', resizeCanvas);
+</script>
+</body>
+</html>

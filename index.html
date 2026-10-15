@@ -26,6 +26,77 @@
   .search-item__title { font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .search-item__meta { font-size: 11px; color: var(--color-text-tertiary); margin-top: 3px; }
 
+  /* ── 视图切换按钮 ── */
+  .view-toggle { display:flex; gap:2px; background:#f0f2f5; border-radius:7px; padding:2px; }
+  .view-btn { border:none; background:transparent; border-radius:5px; padding:3px 10px;
+              font-size:12px; color:var(--color-text-secondary); cursor:pointer; transition:all .15s; }
+  .view-btn.active { background:#fff; color:var(--color-text-primary); font-weight:500;
+                     box-shadow:0 1px 3px rgba(0,0,0,.1); }
+
+  /* ── 列表视图 ── */
+  #listView { display:none; flex:1; flex-direction:column; min-height:400px; border-radius:10px;
+              background:rgba(255,255,255,.55); border:1px solid var(--color-border-default); overflow-y:auto; }
+  #listView.lv-active { display:flex; flex-direction:column; }
+  .list-domains { display:flex; flex-direction:column; gap:4px; padding:10px; }
+  .list-domain-group { border-radius:8px; overflow:hidden; border:1px solid var(--color-border-default); }
+  .list-domain-hdr { display:flex; align-items:center; gap:6px; padding:8px 12px;
+                     background:rgba(255,255,255,.85); cursor:pointer; user-select:none;
+                     font-size:13px; font-weight:600; color:var(--color-text-primary); }
+  .list-domain-hdr:hover { background:var(--color-brand-soft); }
+  .list-domain-hdr .chevron { font-size:9px; color:var(--color-text-tertiary);
+                               transition:transform .2s; margin-left:auto; }
+  .list-domain-hdr.open .chevron { transform:rotate(90deg); }
+  .list-subdomain-wrap { padding:0 8px 8px; background:rgba(249,250,252,.9); }
+  .list-sub-hdr { font-size:10px; font-weight:700; color:var(--color-text-tertiary);
+                  padding:6px 4px 3px; letter-spacing:.04em; }
+  .list-page-row { display:flex; align-items:center; gap:8px; padding:5px 8px;
+                   border-radius:6px; cursor:pointer; transition:background .12s; }
+  .list-page-row:hover { background:var(--color-brand-soft); }
+  .list-page-dot { width:6px; height:6px; border-radius:50%; background:#0c63fa; flex-shrink:0; }
+  .list-page-name { font-size:12px; color:var(--color-text-primary); flex:1; min-width:0;
+                    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .list-page-date { font-size:10px; color:var(--color-text-tertiary); flex-shrink:0; }
+  .list-page-fav  { font-size:11px; color:#e9a33a; flex-shrink:0; }
+
+  /* ── 下钻视图（两栏）── */
+  #drillView { display:none; flex:1; min-height:400px; border-radius:10px; overflow:hidden;
+               border:1px solid var(--color-border-default); background:#fff; }
+  #drillView.dv-active { display:flex; }
+  .drill-nav { width:196px; flex-shrink:0; border-right:1px solid var(--color-border-default);
+               display:flex; flex-direction:column; background:#f9fafb; overflow-y:auto; }
+  .drill-back { display:flex; align-items:center; gap:6px; padding:10px 12px;
+                font-size:12px; color:var(--color-brand-primary); cursor:pointer; font-weight:500;
+                border-bottom:1px solid var(--color-border-default); }
+  .drill-back:hover { background:var(--color-brand-soft); }
+  .drill-nav-domain { padding:8px 12px 3px; font-size:10px; font-weight:700;
+                      color:var(--color-text-tertiary); letter-spacing:.06em; }
+  .drill-nav-item { display:flex; align-items:center; gap:7px; padding:6px 14px;
+                    cursor:pointer; font-size:12px; color:var(--color-text-secondary);
+                    border-left:2px solid transparent; transition:all .12s; }
+  .drill-nav-item:hover { background:var(--color-brand-soft); color:var(--color-text-primary); }
+  .drill-nav-item.active { background:var(--color-brand-soft); color:var(--color-brand-primary);
+                           border-left-color:var(--color-brand-primary); font-weight:500; }
+  .drill-content { flex:1; overflow-y:auto; padding:20px 24px; }
+  .drill-title { font-size:16px; font-weight:600; color:var(--color-text-primary); margin-bottom:6px; }
+  .drill-meta { display:flex; gap:14px; margin-bottom:14px; flex-wrap:wrap; }
+  .drill-meta-item { font-size:11px; color:var(--color-text-tertiary); }
+  .drill-meta-item b { color:var(--color-text-secondary); font-weight:500; }
+  .drill-tag { display:inline-block; font-size:11px; padding:2px 8px; border-radius:10px;
+               background:var(--color-brand-soft); color:var(--color-brand-primary);
+               font-weight:500; margin-bottom:12px; }
+  .drill-body { font-size:13px; color:var(--color-text-secondary); line-height:1.75; }
+  .drill-src-link { display:inline-flex; align-items:center; gap:5px; margin-top:16px;
+                    font-size:12px; color:var(--color-brand-primary); cursor:pointer;
+                    padding:6px 12px; border-radius:6px; border:1px solid var(--color-brand-border);
+                    background:var(--color-brand-soft); }
+  .drill-src-link:hover { background:#deeaff; }
+  .drill-fav-btn { float:right; background:none; border:1px solid var(--color-border-default);
+                   border-radius:6px; padding:4px 10px; font-size:12px; cursor:pointer;
+                   color:var(--color-text-secondary); transition:all .15s; }
+  .drill-fav-btn.active { border-color:#e9a33a; color:#e9a33a; background:#fff9f0; }
+  .drill-empty { display:flex; align-items:center; justify-content:center; height:200px;
+                 color:var(--color-text-tertiary); font-size:13px; }
+
   .fav-panel { position: absolute; inset: 0; background: rgba(250,252,255,.97);
                overflow: auto; display: none; flex-direction: column; padding: 12px; gap: 8px; }
   .fav-panel.show { display: flex; }
@@ -105,6 +176,7 @@
 
   .prog-track { display: flex; align-items: flex-start; }
   .prog-step  { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: none; }
+  .prog-step.is-submitted { min-width: 42px; }
   .prog-dot   { width: 8px; height: 8px; border-radius: 50%; background: #e1e3e6; }
   .prog-dot.done     { background: #06bf75; }
   .prog-dot.active   { background: #0c63fa; box-shadow: 0 0 0 3px rgba(12,99,250,.15); }
@@ -184,16 +256,31 @@
             </div>
             <div class="k-toolbar">
               <div class="tool-role-pills" id="rolePills"></div>
-              <button class="fav-btn" id="favBtn" onclick="toggleFavView()">
-                <span>★</span> 我的收藏
-              </button>
+              <div style="display:flex;gap:8px;align-items:center">
+                <div class="view-toggle">
+                  <button class="view-btn active" id="vbGraph" onclick="switchView('graph')">图谱</button>
+                  <button class="view-btn"        id="vbList"  onclick="switchView('list')">列表</button>
+                </div>
+                <button class="fav-btn" id="favBtn" onclick="toggleFavView()">
+                  <span>★</span> 我的收藏
+                </button>
+              </div>
             </div>
+            <!-- 图谱视图 -->
             <div class="graph-area" id="graphAreaWrap">
               <canvas id="graphCanvas"></canvas>
-              <svg id="favOverlay" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible"></svg>
               <div class="search-floating" id="searchFloating"></div>
               <div class="fav-panel" id="favPanel"></div>
               <div class="graph-hint" id="graphHint">点击节点跳转 · 点击 ★ 收藏 · 滚轮缩放</div>
+            </div>
+            <!-- 列表视图 -->
+            <div id="listView"></div>
+            <!-- 下钻视图（两栏） -->
+            <div id="drillView">
+              <div class="drill-nav" id="drillNav"></div>
+              <div class="drill-content" id="drillContent">
+                <div class="drill-empty">← 从左侧选择一个知识页</div>
+              </div>
             </div>
           </div>
         </div>
@@ -240,6 +327,7 @@ const S = {
   nodes: [], edges: [],
   hovered: null,
   dragging: false,
+  dragMoved: false,
   showFavs: false,
   resolved: {},
 };
@@ -268,6 +356,153 @@ const C = {
   pageConfl:  { fill:'#fc3232' },
   edge:       'rgba(31,35,41,.10)',
 };
+
+/* ══ 视图切换 ══ */
+let S_view = 'graph';
+
+function switchView(v) {
+  S_view = v;
+  document.getElementById('vbGraph').classList.toggle('active', v==='graph');
+  document.getElementById('vbList').classList.toggle('active', v==='list'||v==='drill');
+  document.getElementById('graphAreaWrap').style.display = (v==='graph') ? '' : 'none';
+  document.getElementById('graphHint').style.display     = (v==='graph') ? '' : 'none';
+  // 角色 pills 只在图谱视图显示
+  document.getElementById('rolePills').style.visibility = (v==='graph') ? '' : 'hidden';
+  const lv = document.getElementById('listView');
+  const dv = document.getElementById('drillView');
+  lv.classList.toggle('lv-active', v==='list');
+  dv.classList.toggle('dv-active', v==='drill');
+  if (v==='list') renderListView();
+  document.getElementById('favPanel').classList.remove('show');
+}
+
+/* ── 列表视图：合并所有角色的知识，按领域展示 ── */
+function _getAllDomains() {
+  // 合并所有角色 graph，以 domain.key 去重，page 以 id 去重
+  const domainMap = new Map(); // key -> {label, subMap}
+  Object.values(DATA.graph||{}).forEach(roleGraph => {
+    (roleGraph.domains||[]).forEach(d => {
+      if (!domainMap.has(d.key)) domainMap.set(d.key, {key:d.key, label:d.label, subMap:new Map()});
+      const dm = domainMap.get(d.key);
+      (d.children||[]).forEach(sub => {
+        if (!dm.subMap.has(sub.key)) dm.subMap.set(sub.key, {key:sub.key, label:sub.label, pageMap:new Map()});
+        const sm = dm.subMap.get(sub.key);
+        (sub.pages||[]).forEach(p => { if (!sm.pageMap.has(p.id)) sm.pageMap.set(p.id, p); });
+      });
+    });
+  });
+  // 还原成数组
+  return [...domainMap.values()].map(d => ({
+    ...d,
+    children: [...d.subMap.values()].map(sub => ({
+      ...sub,
+      pages: [...sub.pageMap.values()]
+    }))
+  }));
+}
+
+function renderListView() {
+  const domains = _getAllDomains();
+  const el = document.getElementById('listView');
+  let html = '<div class="list-domains">';
+  domains.forEach(d => {
+    html += `<div class="list-domain-group">
+      <div class="list-domain-hdr" onclick="toggleListDomain(this)">
+        ${d.label}<span class="chevron">▶</span>
+      </div>
+      <div class="list-subdomain-wrap" style="display:none">`;
+    (d.children||[]).forEach(sub => {
+      html += `<div class="list-sub-hdr">${sub.label}</div>`;
+      (sub.pages||[]).forEach(page => {
+        const fav = S.favs.has(page.id);
+        html += `<div class="list-page-row" onclick="openDrill('${page.id}')">
+          <div class="list-page-dot"></div>
+          <div class="list-page-name">${page.title}</div>
+          <div class="list-page-date">${page.updatedAt||''}</div>
+          ${fav ? '<div class="list-page-fav">★</div>' : ''}
+        </div>`;
+      });
+    });
+    html += '</div></div>';
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function toggleListDomain(hdr) {
+  const opening = !hdr.classList.contains('open');
+  hdr.classList.toggle('open', opening);
+  hdr.nextElementSibling.style.display = opening ? '' : 'none';
+}
+
+/* ── 下钻：找 page（全量搜索，不依赖 S.role）── */
+function _findPage(id) {
+  for (const d of _getAllDomains())
+    for (const sub of (d.children||[]))
+      for (const p of (sub.pages||[]))
+        if (p.id===id) return {page:p, domain:d, sub};
+  return null;
+}
+
+/* ── 下钻：打开 ── */
+function openDrill(pageId) {
+  switchView('drill');
+  _buildDrillNav(pageId);
+  _renderDrillPage(pageId);
+}
+
+function _buildDrillNav(activeId) {
+  const domains = _getAllDomains();
+  const nav = document.getElementById('drillNav');
+  let html = '<div class="drill-back" onclick="switchView(\'list\')">← 返回列表</div>';
+  domains.forEach(d => {
+    html += `<div class="drill-nav-domain">${d.label}</div>`;
+    (d.children||[]).forEach(sub => {
+      (sub.pages||[]).forEach(p => {
+        html += `<div class="drill-nav-item${p.id===activeId?' active':''}"
+          onclick="drillNavClick('${p.id}',this)">
+          <span style="color:#0c63fa;font-size:9px">●</span>${p.title}
+        </div>`;
+      });
+    });
+  });
+  nav.innerHTML = html;
+}
+
+function drillNavClick(id, el) {
+  document.querySelectorAll('.drill-nav-item').forEach(n=>n.classList.remove('active'));
+  el.classList.add('active');
+  _renderDrillPage(id);
+}
+
+function _renderDrillPage(id) {
+  const found = _findPage(id);
+  if (!found) return;
+  const {page} = found;
+  const isFav = S.favs.has(id);
+  document.getElementById('drillContent').innerHTML = `
+    <button class="drill-fav-btn ${isFav?'active':''}"
+            onclick="toggleFavDrill('${id}')">${isFav?'★ 已收藏':'☆ 收藏'}</button>
+    <div class="drill-title">${page.title}</div>
+    <div class="drill-meta">
+      <div class="drill-meta-item">来源文档 <b>${page.source||'—'}</b></div>
+      <div class="drill-meta-item">最后更新 <b>${page.updatedAt||'—'}</b></div>
+      ${page.tag?`<div class="drill-meta-item">标签 <b>${page.tag}</b></div>`:''}
+    </div>
+    ${page.tag?`<div class="drill-tag">${page.tag}</div>`:''}
+    <div class="drill-body">${page.summary||'暂无内容摘要。'}</div>
+    ${page.source?`<div class="drill-src-link"
+        onclick="window.open(KB_BASE+'/'+\`${id}\`,'_blank')">
+        ↗ 查看原文（${page.source}）</div>`:''}
+  `;
+}
+
+function toggleFavDrill(id) {
+  toggleFav(id);
+  _renderDrillPage(id);
+  // 同步列表视图收藏标记
+  renderListView();
+}
 
 function renderRolePills() {
   document.getElementById('rolePills').innerHTML = DATA.roles.map(r =>
@@ -454,6 +689,25 @@ function drawGraph() {
     ctx.fillStyle = nodeColor(n);
     ctx.fill();
 
+    /* 收藏星标（canvas内绘制，hover或已收藏时显示） */
+    if (n.kind === 'page') {
+      const isFav = S.favs.has(n.id);
+      if (hov || isFav) {
+        const sr = Math.max(5, n.r * 0.85);
+        const sx = n.x + n.r * 0.8 + sr;
+        const sy = n.y - n.r * 0.8 - sr;
+        n._favX = sx; n._favY = sy; n._favR = sr + 4;
+        ctx.beginPath(); ctx.arc(sx, sy, sr, 0, Math.PI * 2);
+        ctx.fillStyle = isFav ? '#e9a33a' : 'rgba(255,255,255,0.95)'; ctx.fill();
+        ctx.strokeStyle = isFav ? '#e9a33a' : 'rgba(31,35,41,0.2)';
+        ctx.lineWidth = 1; ctx.stroke();
+        ctx.fillStyle = isFav ? '#fff' : '#c0c4cc';
+        ctx.font = `${sr * 1.1}px ${FONT}`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('★', sx, sy + 0.5);
+      } else { n._favX = null; }
+    } else { n._favX = null; }
+
     /* 标签 */
     if (n.kind !== 'page' || n.r >= 4) {
       ctx.fillStyle = hov ? COL.labelHi : COL.label;
@@ -473,25 +727,20 @@ function drawGraph() {
 
   });
   ctx.restore();
-  updateFavOverlay();
 }
 
-/* ── SVG 收藏 overlay：绕开 canvas 命中问题，直接用 DOM 事件 ── */
-function updateFavOverlay() {
-  const svg = document.getElementById('favOverlay');
-  if (!svg) return;
-  svg.innerHTML = S.nodes.filter(n => n.kind === 'page').map(n => {
-    const bx = n.x * S.zoom + S.pan.x;
-    const by = n.y * S.zoom + S.pan.y;
-    const ox = (n.r + 9) * S.zoom;
-    const oy = (n.r + 9) * S.zoom;
-    const cx = bx + ox, cy = by - oy;
-    const on = S.favs.has(n.id);
-    return `<g data-fav-id="${n.id}" style="cursor:pointer">
-      <circle cx="${cx}" cy="${cy}" r="10" fill="${on?'#e9a33a':'rgba(255,255,255,0.9)'}" stroke="${on?'#e9a33a':'rgba(31,35,41,0.15)'}" stroke-width="1"/>
-      <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" font-size="10" font-family="-apple-system,'PingFang SC',sans-serif" fill="${on?'#fff':'#b0b6be'}" style="user-select:none;pointer-events:none">★</text>
-    </g>`;
-  }).join('');
+/* ── 星标命中检测 ── */
+function hitFav(cx, cy) {
+  const rect = canvas.getBoundingClientRect();
+  const x = (cx - rect.left - S.pan.x) / S.zoom;
+  const y = (cy - rect.top  - S.pan.y) / S.zoom;
+  for (let i = S.nodes.length - 1; i >= 0; i--) {
+    const n = S.nodes[i];
+    if (!n._favX) continue;
+    const dx = x - n._favX, dy = y - n._favY;
+    if (dx*dx + dy*dy <= n._favR * n._favR) return n;
+  }
+  return null;
 }
 
 /* ── 命中检测 ── */
@@ -502,32 +751,41 @@ function hitTest(clientX, clientY) {
   const mx = (clientX - rect.left - S.pan.x) / S.zoom;
   const my = (clientY - rect.top  - S.pan.y) / S.zoom;
 
-  // 收藏星标由 SVG overlay 处理，canvas hitTest 不再检测 fav 区
   for (let i = S.nodes.length - 1; i >= 0; i--) {
     const n = S.nodes[i], dx = mx - n.x, dy = my - n.y;
-    // 对 page 节点用更大的感应半径（覆盖右上角星标区域）
-    const hitR = n.kind === 'page' ? n.r + 28 : n.r + 6;
-    if (dx * dx + dy * dy <= hitR * hitR) return { node: n, fav: false };
+    if (dx*dx + dy*dy <= (n.r+6)*(n.r+6)) return { node: n };
   }
   return null;
 }
 
-canvas.addEventListener('mousemove', e => {
-  if (S.dragging) { S.pan.x += e.movementX; S.pan.y += e.movementY; drawGraph(); return; }
-  const hit = hitTest(e.clientX, e.clientY);
-  const ph = S.hovered;
-  S.hovered       = hit ? hit.node.id : null;
-  canvas.style.cursor = hit ? 'pointer' : 'grab';
-  if (S.hovered !== ph) drawGraph();
-});
-
 canvas.addEventListener('mousedown', e => {
-  const hit = hitTest(e.clientX, e.clientY);
-  if (!hit) { S.dragging = true; canvas.style.cursor = 'grabbing'; }
+  S.dragMoved = false;
+  S.dragging = true;
+  canvas.style.cursor = 'grabbing';
 });
 window.addEventListener('mouseup', () => { S.dragging = false; });
 
+canvas.addEventListener('mousemove', e => {
+  if (S.dragging) {
+    if (Math.abs(e.movementX) > 1 || Math.abs(e.movementY) > 1) S.dragMoved = true;
+    S.pan.x += e.movementX; S.pan.y += e.movementY; drawGraph(); return;
+  }
+  const favN = hitFav(e.clientX, e.clientY);
+  const hit  = favN ? null : hitTest(e.clientX, e.clientY);
+  const ph   = S.hovered;
+  S.hovered  = favN ? favN.id : (hit ? hit.node.id : null);
+  canvas.style.cursor = (favN || hit) ? 'pointer' : 'grab';
+  if (S.hovered !== ph) drawGraph();
+});
+
+canvas.addEventListener('mouseleave', () => {
+  S.hovered = null; canvas.style.cursor = 'grab'; drawGraph();
+});
+
 canvas.addEventListener('click', e => {
+  if (S.dragMoved) return;
+  const favN = hitFav(e.clientX, e.clientY);
+  if (favN) { toggleFav(favN.id); return; }
   const hit = hitTest(e.clientX, e.clientY);
   if (!hit) return;
   if (hit.node.kind === 'page') window.open(KB_BASE + '/' + hit.node.id, '_blank');
@@ -549,7 +807,7 @@ function toggleFav(id) {
   S.favs.has(id) ? S.favs.delete(id) : S.favs.add(id);
   localStorage.setItem('hr-kc-favs', JSON.stringify([...S.favs]));
   drawGraph();
-  renderFavPanel();   // 无论面板开不开都刷新，打开时内容已经是最新的
+  renderFavPanel();
 }
 
 function toggleFavView() {
@@ -723,7 +981,7 @@ function renderProgressPanel() {
       const isConf = i===2&&done&&t.conflictCount>0;
       let dc = isDone?(isConf?'conflict':'done'):isAct?'active':isFail?'fail':'';
       let lc = (isDone||isAct)?'hi':isFail?'fail-lbl':isConf?'conf-lbl':'';
-      return '<div class="prog-step"><div class="prog-dot '+dc+'"></div>'+
+      return '<div class="prog-step '+(i===0?'is-submitted':'')+'"><div class="prog-dot '+dc+'"></div>'+
              '<div class="prog-step-label '+lc+'">'+label+'</div></div>'+
              (i<STEPS.length-1?'<div class="prog-line'+(isDone&&!isConf?' done':'')+'"></div>':'');
     }).join('');
@@ -735,7 +993,7 @@ function renderProgressPanel() {
 
     return '<div class="progress-card">'+
       '<div class="progress-head">'+
-        '<div class="progress-title">'+t.sourceTitle+(failed?' <span class="tiny-tag" style="background:#fff5f5;color:#b50707">失败</span>':'')+'</div>'+
+        '<div class="progress-title" style="cursor:pointer;color:var(--color-brand-primary)" onclick="window.open(\'https://knowledge-cloud.staging.kuaishou.com/?app=hr#/ssc-service-delivery/tasks\',\'_blank\')">'+t.sourceTitle+(failed?' <span class="tiny-tag" style="background:#fff5f5;color:#b50707">失败</span>':'')+'</div>'+
         statusBadge+
       '</div>'+
       '<div class="prog-track">'+track+'</div>'+
@@ -751,8 +1009,8 @@ function renderPagesPanel() {
       <div class="space-card">
         <div class="space-icon">📂</div>
         <div class="space-main">
-          <div class="space-title">${s.domain} · ${s.label}</div>
-          <div class="space-meta">${s.pagesCount} 个知识页 · 空间 ${s.key}</div>
+          <div class="space-title">${s.label}</div>
+          <div class="space-meta">${s.pagesCount} 个知识页 · ${s.description}</div>
         </div>
         <button class="toft-button toft-button--ghost" onclick="alert('查看空间：${s.key}')">查看</button>
       </div>`).join('');
@@ -762,10 +1020,6 @@ function renderPagesPanel() {
    Init
 ════════════════════════════════ */
 // SVG overlay 事件委托（绑一次，不随 innerHTML 刷新而失效）
-document.getElementById('favOverlay').addEventListener('click', e => {
-  const g = e.target.closest('[data-fav-id]');
-  if (g) toggleFav(g.dataset.favId);
-});
 renderRolePills();
 resizeCanvas();
 renderTodoPanel();

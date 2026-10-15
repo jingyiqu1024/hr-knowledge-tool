@@ -256,29 +256,41 @@ window.DATA = {
   ],
 
   tasks: [
-    /* 文档级进度，不区分角色
+    /* 文档级进度
      * status: submitted | generating | checking | done | failed
+     * failedAt: 失败发生在哪个阶段（用于步骤条定位）
      */
-    { sourceTitle: '《奖金管理政策 2026》',   uploadedAt: '今天 11:05', status: 'checking' },
+    { sourceTitle: '《奖金管理政策 2026》',
+      uploadedAt: '今天 11:05', status: 'checking' },
 
-    { sourceTitle: '《offer 审批指引》',       uploadedAt: '今天 10:24', status: 'done',
+    { sourceTitle: '《offer 审批指引》',
+      uploadedAt: '今天 10:24', status: 'done',
       pageCount: 3, conflictCount: 1 },
 
-    { sourceTitle: '《考勤与假期管理规定》',   uploadedAt: '今天 08:55', status: 'done',
+    { sourceTitle: '《考勤与假期管理规定》',
+      uploadedAt: '今天 08:55', status: 'done',
       pageCount: 6, conflictCount: 0 },
 
-    { sourceTitle: '《学习平台使用说明》',     uploadedAt: '今天 09:40', status: 'generating' },
+    { sourceTitle: '《学习平台使用说明》',
+      uploadedAt: '今天 09:40', status: 'generating' },
 
-    { sourceTitle: '《薪酬体系设计规范2026》', uploadedAt: '昨天 17:08', status: 'failed',
+    { sourceTitle: '《绩效管理操作手册》',
+      uploadedAt: '昨天 16:22', status: 'failed',
+      failedAt: 'checking',
+      failReason: '冲突检查服务异常，请稍后重试。如持续失败请联系管理员。' },
+
+    { sourceTitle: '《薪酬体系设计规范2026》',
+      uploadedAt: '昨天 17:08', status: 'failed',
       failedAt: 'generating',
       failReason: '文档被加密保护，无法读取内容。请去除密码保护后重新上传。' },
   ],
 
   coeSpaces: [
-    { key: 'hrbp',      domain: 'HRBP',  label: '知识空间', pagesCount: 42 },
-    { key: 'manager',   domain: '管理者', label: '知识空间', pagesCount: 28 },
-    { key: 'all',       domain: '全员',   label: '知识空间', pagesCount: 35 },
-    { key: 'recruiter', domain: '招聘',   label: '知识空间', pagesCount: 31 },
+    { key: 'payroll',    domain: 'CB',   label: 'Payroll 知识库',  pagesCount: 42, description: '从 HR（all）全员视角回答薪酬福利（Payroll）领域的政策、规则与口径。' },
+    { key: 'leadership', domain: 'TD',   label: '领导力知识库',    pagesCount: 22, description: '回答公司级管理者培养项目与领导力测评知识，覆盖公司管理者通用能力。' },
+    { key: 'service',    domain: 'SSC',  label: '服务交付知识库',  pagesCount: 37, description: '员工事务办理规则与操作，覆盖入职与用工类型、劳动合同等服务交付知识。' },
+    { key: 'recruiter',  domain: '招聘',  label: '招聘知识库',      pagesCount: 31, description: '渠道寻源、面试组织、offer 与背调、雇主品牌运营等招聘全流程所需的规范与工具指引。' },
+    { key: 'ssc',        domain: 'SSC',  label: 'SSC 知识库',      pagesCount: 19, description: '外包用工规则与流程，覆盖工时制、普通外包、用工模式选用等相关知识。' },
   ],
 
   managedPages: [
